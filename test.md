@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 In this model, we will have a stock whose profits (or dividends by our assumption) at time $t$ is given by the process $D_t$ where $D_tdt$ represents the total dividend payment in $[t,t+dt]$ for owning $1$ unit of stock. This dividend process will be given by a GBM with mean $\mu$ and volatility $\sigma_D$. Seperately, there is a market multiple process $M_t$ which represents the amount the market is willing to pay for the stock given its current dividend. Simply, if $S_t$ is stock price at time $t$, then $D_t M_t = S_t$. To model the market multiple process, we model its inverse, the dividend yield process $y_t = \frac{1}{M_t} = \frac{D_t}{S_t}$ with an OU model. This is a common model for interest rates and thus makes sense for earnings yield. Thus our model is:
 
 $$dD_t = \mu D_t dt + \sigma_D D_t dW^1_t$$
