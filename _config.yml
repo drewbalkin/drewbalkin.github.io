@@ -10,7 +10,7 @@ commonmark:
   options: ["SMART", "FOOTNOTES"]
   extensions: ["strikethrough", "autolink", "table", "tagfilter", "smart"]
 
-theme: minimal # this is a simple, built-in Jekyll theme
+theme: jekyll-theme-minimal # use the minimal theme
 
 plugins:
   - jekyll-feed
