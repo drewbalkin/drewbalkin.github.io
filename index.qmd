@@ -1,14 +1,11 @@
 ---
-title: "drewbalkin.github.io"
+title: "blog"
 ---
 
 This is a Quarto website.
 
 To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
-```{python}
-import torch
-x = torch.tensor([1.])
-print(x)
+```{r}
+1 + 1
 ```
-
