@@ -1,11 +1,27 @@
 ---
-title: "blog"
+title: "About"
 ---
 
-This is a Quarto website.
+My name is Robert Balkin, and I have a deep interest in all-things finance. This includes both theoretical as well as practical scenarios where I enjoy to mix the tools and techniques of quantitative finance with the traditional viewpoints of finance on fundamental valuation. Although this is how I think about and approach markets, not all of this will be covered in this blog. This blog is a catch all for the things I have been thinking about with regard to finance that would be appropriate to showcase for all online participants, especially those with a mathematical / quantitative finance background.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
-```{r}
-1 + 1
-```
+## Academic Research
+
+As for my background, I am completing my PhD in mathematics from UC Santa Barbara with a graduation date in September of 2023. In this time, I have studied machine learning methods for solving stochastic optimal control problems and stochastic differential games. These problems are abundant in finance although the solutions can be quite difficult. The machine learning methods I have studied allow one to solve these problems that would be otherwise too difficult with other methodologies. For example, my paper [here](https://arxiv.org/pdf/2307.06450.pdf) showcases a technique to solve stochastic delay differential games with machine learning and highlights various financial problems that can be solved with this technique. Along with applications to finance, I have worked on applying these methodologies to Covid-19 models in a game-theoretic setting which is featured [here](https://msml21.github.io/papers/id42.pdf) in the conference papers on Mathematical and Scientific Machine Learning 2021  and [here](ams.org/journals/notices/202211/rnoti-p1878.pdf) in the AMS notices.
+
+For this blog, I wanted to highlight some of my thoughts in a more accessible and informal manner. In part, some work is inspired by my academic research such as my blog post on [Kelly Optimal portfolios among Market Cycles](./kellyoptimalPEtiming.qmd). Some work is just my own personal excursion into financial math topics of great interest to me such that [part 1](./logoptimal1.qmd), [part 2](./logoptimal2.qmd), and [part 3](./logoptimal3.qmd) on how the log-optimal portfolio can be used in option pricing in a surprisingly beautiful manner!
+
+
+## Blog Projects and Research
+
+Throughout my PhD research, there have been some (re)discoveries of mine that fascinated me. I wanted to document and share these discoveries -- primarily so I could remember the result and underlying derivations, but also to share with others the same joy I found in certain discoveries. I appreciate a new perspective as long as it encapsulates what is true. I found this case in my study of the log-optimal portfolio and how it can be used to price options under $\mathbb{P}$, the true physical measure. I won't spoil the surprise for now, but I found the underlying math to be fascinating as well as it's implication for an intuitive viewpoint of option pricing!
+
+At the same time, I wanted to showcase some of the small-time applied research I have done outside of my PhD for my own fun. I studied the SP500 valuation market cycle and modeled it according to a mean-reverting stochastic process for the earnings yield. With this new model, I considered optimal portfolios to see 1) the viability of this model throughout history 2) to showcase an optimization methodology based on neural networks that can be applied to more realistic models.
+
+### Log-Optimal Portfolio and Option Pricing
+
+Traditionally, financial derivatives are priced as their discounted payout under a risk neutral measure. I was intrigued by an approach that I (re)discovered which showed the price of the derivative is actually its payout under the physical measure when a certain unit of account (or numeraire) was considered. Basically, if one takes as unit of account the so-called "growth-optimal portfolio", then the option's price is exactly the expected value of the option's payout under the true physical measure! In other words, pricing a derivative/security/asset in units of growth-optimal portfolio naturally discounts for risk and time! Not only is this true, but it is true in very general senses. For my own derivations, I have [shown this to be true for the traditional Black-Scholes model](./logoptimal1.qmd), a [generalized model for all attainable claims](./logoptimal2.qmd), and even true for a [utility based pricing in the case of unattainable claims](./logoptimal3.qmd)!
+
+### Kelly Optimality throughout Market Cycles
+
+Next, I am highly interested in finding long-term alphas through exploiting macro inefficiencies. I believe that asset prices become irrationally high and irrationally low throughout periods of time. I also believe that this can be very tricky to understand when it is the case and the time it can take for mean-reversion results in tremendous risk for a "macro-arbitrageur" who can be wrong for extended periods of time. In retrospect, we can point to a 2000 where the stock-market experienced a Shiller CAPE ratio of 44 while the US 30 year TIPs yielded over 4% real! The reality of the situation ultimately pointed to the fact that valuations of the SP500 were absurd relative to the high (real and nominal) yields offered by ultra-low default risk US treasury bonds, however it is always obvious in retrospect. But this begs the question, what is the fair price of equities and how can this change over time? How should one allocate to equities as a function of valuation if 1) valuations can be effectively captured in the first place (i.e. how well does past and estimates capture true distribution of forward) and 2) if equities do experience overall mean-reversion tendencies due to the psychology of market participants to overbid and oversell equities throughout cycles? I begin to address these questions in my blog post on [Kelly Optimal portfolios in earnings driven financial markets](./kellyoptimalPEtiming.qmd).

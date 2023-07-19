@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>blog - Log-Optimal And Risk Neutral Valuation – The Basics</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Projects</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
+        <li>
+    <a class="dropdown-item" href="./kellyoptimalPEtiming.html" rel="" target="">
+ <span class="dropdown-text">Kelly Optimality throughout Market Cycles</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-log-optimal-portfolio-and-option-pricing" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Log Optimal Portfolio and Option Pricing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-log-optimal-portfolio-and-option-pricing">    
+        <li>
+    <a class="dropdown-item" href="./logoptimal1.html" rel="" target="">
+ <span class="dropdown-text">Part 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./logoptimal2.html" rel="" target="">
+ <span class="dropdown-text">Part 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./logoptimal3.html" rel="" target="">
+ <span class="dropdown-text">Part 3</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#review" id="toc-review" class="nav-link active" data-scroll-target="#review">Review</a></li>
+  <li><a href="#continued-review-pricing-under-mathbbp." id="toc-continued-review-pricing-under-mathbbp." class="nav-link" data-scroll-target="#continued-review-pricing-under-mathbbp.">Continued Review: Pricing Under <span class="math inline">\(\mathbb{P}\)</span>.</a></li>
+  <li><a href="#big-result" id="toc-big-result" class="nav-link" data-scroll-target="#big-result">Big Result</a>
+  <ul class="collapse">
+  <li><a href="#simple-verification" id="toc-simple-verification" class="nav-link" data-scroll-target="#simple-verification">Simple verification</a></li>
+  <li><a href="#log-optimality-of-the-portfolio" id="toc-log-optimality-of-the-portfolio" class="nav-link" data-scroll-target="#log-optimality-of-the-portfolio">Log optimality of the portfolio</a>
+  <ul class="collapse">
+  <li><a href="#indirect-proof" id="toc-indirect-proof" class="nav-link" data-scroll-target="#indirect-proof">Indirect Proof</a></li>
+  <li><a href="#construction" id="toc-construction" class="nav-link" data-scroll-target="#construction">Construction</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Log-Optimal And Risk Neutral Valuation – The Basics</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>I am assuming the reader is well-versed in stochastic calculus and knows the foundational results on arbitrage pricing of contingent claims. Those that are familiar are used to the risk-neutral valuation of an option – that is the options price is just the expected value of its discounted payoff under the risk neutral measure. What I aim to do is illustrate a really nice result that allows one to price the option under the true physical measure. Rather than doing this with a choice of stochastic discount factor, we do it with a choice of portfolio value. It turns out that the log-optimal portfolio, the portfolio that maximizes log-utility, is the unique portfolio such that option pricing is just the expected value of the payout under the true physical measure with the caveat that the portfolio is not measured in dollars, or in units of bank account, but instead in units of the log-optimal portfolio.</p>
+<p>This is just the beginning. What I am to do is show that this result holds in a very general setting. At first, we will show that this holds for the typical Black-Scholes-Merton model of the markets. Then we will show this result holds for all attainable claims for a general class of market models (which includes models such as stochastic volatility and much more). This is not in contradiction to the traditional results that shows infinitely many EMM for incomplete markets as the log-optimal numeraire induced pricing corresponds to one of the infinite EMM in this case. However, in our last section, we go one step further and price claims that are unattainable. You might say this is impossible! Indeed from the perspective of arbitrage pricing, it is impossible, as one cannot hedge (by definition) and unattainable claim. However, from the perspective of expected utility theory, this does not mean that a given person would not have a desire to allocate to a given claim given the right entry price. In fact, we will show that if one defines the price of a claim (for a given person) such that they are indifferent to owning a small amount of claim at that price, then we have the result that the price of the option is still the expected payout (under the physical measure) of the option in units of the log-optimal portfolio.</p>
+<p>I will say this is not anything new, but finding these results can be very difficult as there is some, but not much said on this topic especially as one adds more and more generality. My derivations are that of my own and are meant to be simple. This was created by my own exploration and rediscovery of these results and I am presenting my own past excursion in deriving them not knowing they existed in the first place.</p>
+<section id="review" class="level1">
+<h1>Review</h1>
+<p>Let us review a couple of things from the standard Black-Scholes model in the simplest case of a single risky asset (or stock). Since this is just for review, we will make things as simple as possible taking a constant risk free rate <span class="math inline">\(r\)</span> for the money market account. The money market account has a price process <span class="math inline">\((B_t)\)</span> and the stock has a price process <span class="math inline">\((S_t)\)</span> . The governing dynamics can be understood in terms of total return</p>
+<p><span class="math display">\[
+\frac{dB_t}{B_t} = rdt, \\
+\frac{dS_t}{S_t} = \mu dt + \sigma dW_t.
+\]</span></p>
+<p>In terms of portfolios, we think of a portfolio allocation control <span class="math inline">\(\pi_t \in \mathcal{F}_t\)</span>, where <span class="math inline">\(\mathcal{F}_t\)</span> is the Filtration generated by the Brownian motion. <span class="math inline">\(\pi_t\)</span> represents the fraction of wealth invested into the stock (and hence <span class="math inline">\(1-\pi_t\)</span> is invested in the money-market. The portfolio value process <span class="math inline">\((V^\pi_t)\)</span> satisfies that its return is simply the weighted average of the stock return and money-market return which gives</p>
+<p><span class="math display">\[
+\frac{dV^\pi_t}{V^\pi_t} = \pi_t \frac{dS_t}{S_t} + (1-\pi_t) \frac{dB_t}{B_t}.
+\]</span></p>
+<p>This reduces to the controlled dynamical system:</p>
+<p><span class="math display">\[
+\frac{dV^\pi_t}{V^\pi_t} = [r+\pi_t (\mu-r)] dt + \pi_t \sigma dW_t.
+\]</span></p>
+<p>The risk neutral pricing formula can be derived in many ways. We will recall the derivation in the following argument:</p>
+<ul>
+<li><p>Find a measure <span class="math inline">\(\mathbb{Q}\)</span> such that <span class="math inline">\((\frac{S_t}{B_t})\)</span> is a <span class="math inline">\(\mathbb{Q}\)</span> - martingale.</p></li>
+<li><p>Since both <span class="math inline">\((\frac{S_t}{B_t})\)</span> and <span class="math inline">\((\frac{B_t}{B_t} = 1)\)</span> are <span class="math inline">\(\mathbb{Q}\)</span> - martingale, it is easy to show that any portfolio <span class="math inline">\(\pi = (\pi_t)\)</span> has a corresponding wealth process <span class="math inline">\((V^\pi_t)\)</span> that is also a <span class="math inline">\(\mathbb{Q}\)</span> - martingale.</p></li>
+<li><p>Therefore <span class="math inline">\(\mathbb{E}^\mathbb{Q} \left[ \frac{V^\pi_T}{B_T} \Big| \mathcal{F}_t \right] = \frac{V^\pi_t}{B_t}\)</span> for all portfolios <span class="math inline">\(\pi\)</span>.</p></li>
+<li><p>Let <span class="math inline">\(X\)</span> be a time <span class="math inline">\(T\)</span> claim i.e.&nbsp;<span class="math inline">\(X \in \mathcal{F_T}\)</span> is paid out at time <span class="math inline">\(T\)</span>. Then (since in this case every claim is attainable), there exists <span class="math inline">\(\pi\)</span> and <span class="math inline">\(V^\pi_0\)</span> such that <span class="math inline">\(V^\pi_T = X\)</span> a.s.. Therefore we get the risk neutral pricing:</p></li>
+</ul>
+<p><span class="math display">\[\Pi(t;X) =\mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right]\]</span></p>
+<p>where the function <span class="math inline">\(\Pi(t;\cdot)\)</span> gives the price at time <span class="math inline">\(t\)</span>.</p>
+<p>For the first point, the measure <span class="math inline">\(\mathbb{Q}\)</span> can be found by finding the measure such that <span class="math inline">\(W^\mathbb{Q}_t := W_t + \frac{\mu-r}{\sigma}t\)</span> is a Brownian motion. Such a measure is guaranteed by the Girsanov theorem by defining <span class="math inline">\(\mathbb{Q}\)</span> by its Radon-Nikodym derivative w.r.t <span class="math inline">\(\mathbb{P}\)</span></p>
+<p><span class="math display">\[\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\frac{1}{2}\lambda^2(T-t) - \lambda (W_T-W_t)\right) \quad \mathrm{on} \ \mathcal{F_t},\]</span> where <span class="math inline">\(\lambda = \frac{\mu-r}{\sigma}\)</span>.</p>
+<p>For the second point, it is simple to show <span class="math inline">\((V^\pi_t)\)</span> that is also a <span class="math inline">\(\mathbb{Q}\)</span> - martingale just by examining that <span class="math inline">\(\frac{dV^\pi_t}{V^\pi_t} = \pi_t \frac{dS_t}{S_t} + (1-\pi_t) \frac{dB_t}{B_t}\)</span>. Thus since <span class="math inline">\(B\)</span> and <span class="math inline">\(S\)</span> are <span class="math inline">\(\mathbb{Q}\)</span>-martingales, hence <span class="math inline">\(\frac{dS_t}{S_t}\)</span> and <span class="math inline">\(\frac{dB_t}{B_t}\)</span> are driftless (in terms of <span class="math inline">\(\mathbb{Q}\)</span> dynamics) and hence so is <span class="math inline">\(\frac{dV^\pi_t}{V^\pi_t}\)</span>. Of course you might say it is a local martingale, but if we restrict <span class="math inline">\(\pi\)</span> to a reasonable set of controls we will get that it is a martingale. We aren’t too concerned about these details here for this intuitive example.</p>
+<p>The rest is immediately evident that our pricing formula holds.</p>
+</section>
+<section id="continued-review-pricing-under-mathbbp." class="level1">
+<h1>Continued Review: Pricing Under <span class="math inline">\(\mathbb{P}\)</span>.</h1>
+<p>While the pricing formula under the risk neutral measure is both extremely useful and elegant, it is nice to characterize what the pricing looks like under <span class="math inline">\(\mathbb{P}\)</span> as this illuminates the pricing formula in many ways.</p>
+<p>This can be easily done as</p>
+<p><span class="math display">\[\mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right] = \mathbb{E}^\mathbb{P}\left[ \frac{d\mathbb{Q}}{d\mathbb{P}} \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right].\]</span> Next, since <span class="math inline">\(\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\lambda(T-t) - \frac{1}{2} \lambda^2 (W_T-W_t)\right)\)</span> on <span class="math inline">\(\mathcal{F_t}\)</span>, and also using <span class="math inline">\(B_T/B_t = \exp(r(T-t))\)</span>, we get</p>
+<p><span class="math display">\[\Pi(t;X) =\mathbb{E}^\mathbb{P} \left[ \frac{X}{e^{(r+\lambda)(T-t) + \frac{1}{2} \lambda^2 (W_T-W_t))}} \Bigg| \mathcal{F}_t \right],\]</span></p>
+<p>which is the pricing under <span class="math inline">\(\mathbb{P}\)</span> adjusted with a new factor. What we have done is computed the so-called SDF, stochastic discount factor, explicitly. That is we have found some <span class="math inline">\(m_T \in \mathcal{F}_T\)</span> such that</p>
+<p><span class="math display">\[ \Pi(0;X) =\mathbb{E}^\mathbb{P} \left[ m_T X  \right], \]</span></p>
+<p><span class="math display">\[\Pi(t;X) =\mathbb{E}^\mathbb{P} \left[ \frac{m_T}{m_t} X  \Big| \mathcal{F_t} \right]. \]</span></p>
+<p>The interpretation is that the price of <span class="math inline">\(X\)</span> is its expected payout weighted by some appropriate kernel that accounts for both time and risk. Such a kernel is called the pricing kernel (or as we said earlier SDF).</p>
+<p>So far this is all review. We have computed the SDF explicitly in this case. This is mildly interesting at first glance: we learned the appropriate Kernel in order to price under <span class="math inline">\(\mathbb{P}\)</span>. However, on second glance, something more interesting appears. If you are familiar with the Merton problem or the continuous time Kelly Criterion, you may realize that the SDF was actually the recipricol of the so-called log optimal portfolio!</p>
+</section>
+<section id="big-result" class="level1">
+<h1>Big Result</h1>
+<p>Thus here is the interesting result. The pricing formula is given by</p>
+<p><span class="math display">\[ \Pi(t;X) =  \mathbb{E}^\mathbb{P} \left[ \frac{X}{e^{(r+\frac{1}{2}\lambda^2)(T-t) + \lambda (W_T-W_t))}} \Bigg| \mathcal{F}_t \right] = \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\pi^*}_T/V^{\pi^*}_t} \Bigg| \mathcal{F}_t \right],\]</span></p>
+<p>where <span class="math inline">\(V^{\pi^*}\)</span> is actually a portfolio given by the constant fraction allocation to stocks at all time: <span class="math inline">\(\pi^*_t = \frac{\mu-r}{\sigma^2} = \frac{\lambda}{\sigma}\)</span>.</p>
+<p>It turns out this is the so-called log-optimal (aka growth optimal or Kelly optimal) portfolio, which we prove by either directly deriving it or from another tricky argument using Jensen’s inequality. But before then, let’s just verify it computationally that this corresponding portfolio is indeed the pricing kernel. Then we can show it is also the log-optimal portfolio and give an interpretation to the result!</p>
+<section id="simple-verification" class="level2">
+<h2 class="anchored" data-anchor-id="simple-verification">Simple verification</h2>
+<p>We must show that the portfolio <span class="math inline">\(\pi^*_t = \frac{\mu-r}{\sigma^2} = \frac{\lambda}{\sigma}\)</span> produces the portfolio value such that value<span class="math inline">\(\frac{V^{\pi^*}_T}{V^{\pi^*}_t} = e^{(r+\lambda)(T-t) + \frac{1}{2} \lambda^2 (W_T-W_t)}\)</span> This is simple as we have</p>
+<p><span class="math display">\[
+\frac{dV^{\pi^*}_t}{V^{\pi^*}_t} = [r+\pi^*_t (\mu-r)] dt + \pi^*_t \sigma dW_t.
+\]</span> Now, inputting <span class="math inline">\(\pi^*_t = \frac{\mu-r}{\sigma^2} = \frac{\lambda}{\sigma}\)</span>, we see</p>
+<p><span class="math display">\[
+\frac{dV^{\pi^*}_t}{V^{\pi^*}_t} = (r + \lambda^2) dt + \lambda dW_t.
+\]</span> This is a simple geometric Brownian motion. Solving with the initial value <span class="math inline">\(V^{\pi^*}_t\)</span>, we get</p>
+<p><span class="math display">\[V^{\pi^*}_T = V^{\pi^*}_t \exp\left( (r + \frac{1}{2} \lambda^2)(T-t) + \lambda (W_T - W_t)\right),\]</span></p>
+<p>and hence the result holds.</p>
+</section>
+<section id="log-optimality-of-the-portfolio" class="level2">
+<h2 class="anchored" data-anchor-id="log-optimality-of-the-portfolio">Log optimality of the portfolio</h2>
+<p>We can show that the portfolio is the so-called log-optimal portfolio in two different ways. Both are easy so we might as well do it here. The first way is a direct construction. First we define the log-optimal portfolio to be the portfolio that maximizes the expected log-utility i.e.</p>
+<p><span class="math display">\[
+\pi^* = \arg \max_{\pi} \mathbb{E} [\log(V^\pi_T)].
+\]</span></p>
+<section id="indirect-proof" class="level3">
+<h3 class="anchored" data-anchor-id="indirect-proof">Indirect Proof</h3>
+<p>We already have shown that that the portfolio <span class="math inline">\(\pi^*_t = \frac{\mu-r}{\sigma^2} = \frac{\lambda}{\sigma}\)</span> produces the portfolio value such that value<span class="math inline">\(\frac{V^{\pi^*}_T}{V^{\pi^*}_t} = e^{(r+\lambda)(T-t) + \frac{1}{2} \lambda^2 (W_T-W_t)}\)</span> and thus <span class="math display">\[
+\Pi(t;X) =   \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\pi^*}_T/V^{\pi^*}_t} \Bigg| \mathcal{F}_t \right].
+\]</span> At this point, we don’t know that <span class="math inline">\(\pi^*\)</span> is log-optimal, but we know the pricing formula is true from our previous work. Now we let <span class="math inline">\(\pi\)</span> be an arbitrary portfolio. Assume <span class="math inline">\(V^\pi_0 = V^{\pi^*}_0\)</span> meaning that they start with the same initial amount. We have that</p>
+<p><span class="math display">\[
+\Pi(t;V^\pi_t) = V^\pi_t =   \mathbb{E}^\mathbb{P} \left[ \frac{V^\pi_T}{V^{\pi^*}_T/V^{\pi^*}_t} \Bigg| \mathcal{F}_t \right].
+\]</span> which gives in particular at <span class="math inline">\(t=0\)</span></p>
+<p><span class="math display">\[
+1  =  \frac{V^\pi_0}{V^{\pi^*}_0} =  \mathbb{E}^\mathbb{P} \left[ \frac{V^\pi_T}{V^{\pi^*}_T} \right].
+\]</span></p>
+<p>Now taking <span class="math inline">\(\log(\cdot)\)</span> of both sides, and applying Jensen’s inequality, we get</p>
+<p><span class="math display">\[    \mathbb{E}^\mathbb{P} \left[ \log \left( \frac{V^\pi_T}{V^{\pi^*}_T}\right)\right] \leq \log \left( \mathbb{E}^\mathbb{P} \left[ \frac{V^\pi_T}{V^{\pi^*}_T} \right] \right)  = 0, \]</span> and hence we conclude that <span class="math display">\[
+\mathbb{E}^\mathbb{P} \left[ \log \left( V^\pi_T\right)\right] \leq \mathbb{E}^\mathbb{P} \left[ \log \left( V^{\pi^*}_T\right)\right], \ \forall \pi = (\pi_t)_t.
+\]</span> In otherwords, <span class="math inline">\(\pi^*\)</span> is indeed the log-optimal portfolio.</p>
+<p>What we have shown is that if a portfolio has the so-called “numeraire-property” for <span class="math inline">\(\mathbb{P}\)</span>, then it is log-optimal. This is a very general result. Here the numeraire property means that it is the choice of numeraire such that every asset becomes a <span class="math inline">\(\mathbb{P}\)</span> martingale in units of this numeraire.</p>
+<p>Since our considered portfolio (which we didn’t yet know was log-optimal), was known to have the numeraire-property for <span class="math inline">\(\mathbb{P}\)</span>, we concluded that it was necessarily log-optimal. Surprisingly, we have proven the exact form of the log-optimal portfolio without even constructing it explicitly!</p>
+</section>
+<section id="construction" class="level3">
+<h3 class="anchored" data-anchor-id="construction">Construction</h3>
+<p>Now we construct the log-optimal portfolio explicitly since it does not require much effort and as a second argument for those not entirely convinced.</p>
+<p>A typical approach is to solve the stochastic optimal control problem via the Hamilton-Jacobi-Bellman equation. This is actually overkill for this problem and it is very easy to derive from a direct computation. Simply, lets compute <span class="math inline">\(\mathbb{E} [\log(V^\pi_T)]\)</span> for an arbitrary portfolio <span class="math inline">\((\pi_t)_t\)</span>. We have that for any admissible <span class="math inline">\((\pi_t)_t\)</span>, we have that</p>
+<p><span class="math display">\[
+\frac{dV^{\pi}_t}{V^{\pi}_t} = [r+\pi_t (\mu-r)] dt + \pi_t \sigma dW_t.
+\]</span> This has the solution</p>
+<p><span class="math display">\[V^\pi_T = V^\pi_0\exp \left( \int_0^T [r+\pi_t (\mu-r) - \frac{1}{2} \sigma^2 \pi_t^2 ] dt  + \int_0^T \pi_t \sigma dW_t \right).\]</span></p>
+<p>Taking <span class="math inline">\(\log\)</span> and the expectation, we get:</p>
+<p><span class="math display">\[\mathbb{E}[\log(V^\pi_T)] = \log(V^\pi_0) +  \mathbb{E} \left[ \int_0^T [r+\pi_t (\mu-r) - \frac{1}{2} \sigma^2 \pi_t^2 ] dt \right].\]</span> Now, we seek to maximize the following expression. This may seem non-trivial at first, but carefully inspecting, we see the integrand is just a constant coefficient degree <span class="math inline">\(2\)</span> polynomial in <span class="math inline">\(\pi_t\)</span>. This can be maximized point-wise for all <span class="math inline">\(t\)</span> and <span class="math inline">\(\omega\)</span>. Maximizing the integrand, we have <span class="math inline">\(\pi_t = \frac{\mu-r}{\sigma^2}\)</span> as claimed.</p>
+<p>In case one is suspect of this maximization, we can note that</p>
+<p><span class="math display">\[
+r+ (\mu-r)x  - \frac{1}{2} \sigma^2 x^2   \leq r + (\mu-r) \left( \frac{\mu-r}{\sigma^2} \right)   - \frac{1}{2} \left( \frac{\mu-r}{\sigma^2}
+\right)^2, \ \forall x \in \mathbb{R}
+\]</span> by the optimization of a second degree polynomial. Then, since <span class="math inline">\(\pi_t(\omega) \in \mathbb{R}\)</span>, the bound holds pointwise for all <span class="math inline">\(t\)</span> and <span class="math inline">\(\omega\)</span>, i.e.,</p>
+<p><span class="math display">\[
+r+ (\mu-r)\pi_t(\omega)  - \frac{1}{2} \sigma^2 \pi_t(\omega)^2   \leq r + (\mu-r) \left( \frac{\mu-r}{\sigma^2} \right)   - \frac{1}{2} \left( \frac{\mu-r}{\sigma^2}
+\right)^2,
+\]</span></p>
+<p>Thus taking integral and expectation over the inequality, we get <span class="math display">\[
+\mathbb{E} \left[ \int_0^T [ r+ (\mu-r)\pi_t(\omega)  - \frac{1}{2} \sigma^2 \pi_t(\omega)^2 ] dt \right]  \leq \mathbb{E} \left[ \int_0^T [ r + (\mu-r) \left( \frac{\mu-r}{\sigma^2} \right)   - \frac{1}{2} \left( \frac{\mu-r}{\sigma^2}\right)^2 ]dt \right].
+\]</span></p>
+<p>But since the constant control <span class="math inline">\(\pi_t = \frac{\mu-r}{\sigma^2}\)</span> is admissible (it is a constant control thus it can trivially be decided based on the information at time <span class="math inline">\(t\)</span>), we see that the bound is attained.</p>
+<p>Thus indeed we have that <span class="math inline">\(\pi_t = \pi^*_t = \frac{\mu-r}{\sigma^2}\)</span> is the log-optimal portfolio.</p>
+</section>
+</section>
+</section>
+<section id="summary" class="level1">
+<h1>Summary</h1>
+<p>We have shown for this simple Black-Scholes model, that the option pricing for the time <span class="math inline">\(T\)</span> claim <span class="math inline">\(X \in \mathcal{F}_T\)</span> is given by</p>
+<p><span class="math display">\[ \frac{\Pi(t;X)}{V^\pi_t} =  \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\pi^*}_T} \Bigg| \mathcal{F}_t \right],\]</span> where <span class="math inline">\(\pi^* = (\pi^*_t)_t\)</span> is the log-optimal portfolio meaning that it maximizes over all portfolios, the quantity <span class="math inline">\(\mathbb{E}[ \log(V^{\pi^*}_T)]\)</span>. This portfolio is also called the growth-optimal portfolio or Kelly optimal as it is the portfolio that satisfies the Kelly criterion. It has a number of wonderful properties, which can be covered later.</p>
+<p>The interpretation of the above pricing is as follows: we have the remarkable relation that if the units of measurement were not currency, but instead of growth optimal portfolio value, then the price of an option is just its expected payout under the true measure <span class="math inline">\(\mathbb{P}\)</span>! In essence, the right way to adjust for risk and time in considering the options price can be considered simply by having the correct unit of measurement (numeraire) which is the log-optimal portfolio. To understand why this is true, continue reading the other sections of this blog!</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

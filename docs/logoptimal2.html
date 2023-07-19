@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>blog - Log-Optimal And Risk Neutral Valuation – The General Case</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html" rel="" target="">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Projects</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
+        <li>
+    <a class="dropdown-item" href="./kellyoptimalPEtiming.html" rel="" target="">
+ <span class="dropdown-text">Kelly Optimal</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-log-optimal-portfolio-and-option-pricing" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
+ <span class="menu-text">Log Optimal Portfolio and Option Pricing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-log-optimal-portfolio-and-option-pricing">    
+        <li>
+    <a class="dropdown-item" href="./logoptimal1.html" rel="" target="">
+ <span class="dropdown-text">Part 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./logoptimal2.html" rel="" target="">
+ <span class="dropdown-text">Part 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./logoptimal3.html" rel="" target="">
+ <span class="dropdown-text">Part 3</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#problem-set-up" id="toc-problem-set-up" class="nav-link active" data-scroll-target="#problem-set-up">Problem Set-up</a></li>
+  <li><a href="#numeraire-portfolio" id="toc-numeraire-portfolio" class="nav-link" data-scroll-target="#numeraire-portfolio">Numeraire Portfolio</a>
+  <ul class="collapse">
+  <li><a href="#constructing-the-numeraire-portfolio" id="toc-constructing-the-numeraire-portfolio" class="nav-link" data-scroll-target="#constructing-the-numeraire-portfolio">Constructing the numeraire portfolio</a></li>
+  </ul></li>
+  <li><a href="#a-remark-on-non-uniqueness-of-the-emm" id="toc-a-remark-on-non-uniqueness-of-the-emm" class="nav-link" data-scroll-target="#a-remark-on-non-uniqueness-of-the-emm">A remark on non-uniqueness of the EMM</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Log-Optimal And Risk Neutral Valuation – The General Case</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="problem-set-up" class="level1">
+<h1>Problem Set-up</h1>
+<ul>
+<li><p>We consider <span class="math inline">\(I\)</span> assets whose price dynamics are affected by <span class="math inline">\(J\)</span> noises. In reality, <span class="math inline">\(J&gt;&gt;I\)</span> as there are many more noises than assets.</p></li>
+<li><p>Stock <span class="math inline">\(i\)</span>’s dynamics are given by</p></li>
+</ul>
+<p><span class="math display">\[
+\frac{dS^i_t}{S^i_t} = \mu^i_t dt + \sum_{j=1}^J \sigma^{ij}_t dW^j_t
+\]</span></p>
+<ul>
+<li><p><span class="math inline">\(\mu^i_t\)</span> is the mean rate of return of stock <span class="math inline">\(i\)</span> which itself is stochastic.</p></li>
+<li><p><span class="math inline">\(\sigma^{ij}_t\)</span> is the volatility of stock <span class="math inline">\(i\)</span> associated to the noise <span class="math inline">\(j\)</span>.It itself is also potentially stochastic.</p></li>
+<li><p>Lastly there is an interest rate <span class="math inline">\(r_t\)</span> for a money-market account (which is also stochastic) and such that</p></li>
+<li><p>We will use the notation <span class="math inline">\(\sigma_t = (\sigma^{ij}_t)\)</span> and <span class="math inline">\(\mu_t = (\mu^1_t, \cdots, \mu^I_t)\)</span>.</p></li>
+<li><p>To be precise, we have <span class="math inline">\(\sigma_t,r_t,\mu_t\)</span> are all <span class="math inline">\(\mathcal{F}_t\)</span>-adapted where <span class="math inline">\(\mathcal{F}_t\)</span> is the sigma algebra generated by the Brownian motion <span class="math inline">\(W_t = (W^1_t, \cdots, W^J_t)\)</span>. At first this seems restrictive, we would want them to be general. However, this includes many such models. At first glance, one might not think stochastic volatility, for example, is included in this model as the volatility is not adapted to the Brownian motion of the stock! However, for stochastic volatility, we would merely need to do <span class="math inline">\(\frac{dS_t}{S_t} = \mu dt + \sigma_t dW^1_t + 0 dW^2_t\)</span> and <span class="math inline">\(\sigma_t\)</span>’s dynamics are given in terms of <span class="math inline">\(W^2_t\)</span>. Thus it is not adapted to the “Brownian motion” of the stock, but it is <span class="math inline">\(\mathcal{F}_t\)</span> adapted which allows us to do stochastic integration etc.. Thus actually the condition that <span class="math inline">\(\sigma_t,r_t,\mu_t\)</span> are all <span class="math inline">\(\mathcal{F}_t\)</span>-adapted can lead to very broad models and we will examine just a few toward the end.</p></li>
+<li><p>Now we consider a portfolio which invests the fraction of wealth <span class="math inline">\(\pi^i_t\)</span> into stock <span class="math inline">\(i\)</span> at time <span class="math inline">\(t\)</span>. We require <span class="math inline">\(\pi^i_t\)</span> be <span class="math inline">\(\mathcal{F}_t\)</span>-adapted and bounded. We also require that <span class="math inline">\(\sigma_t,r_t,\mu_t\)</span> are defined such that <span class="math inline">\(S^i_t\)</span>, <span class="math inline">\(e^{\int_0^T r_s ds}\)</span> are bounded and the covariance matrix <span class="math inline">\((\sigma_t\sigma_t^T)\)</span> is non-singular and that its minimal eigenvalue is uniformly bounded (for all <span class="math inline">\(t\)</span>) by some <span class="math inline">\(\epsilon &gt; 0\)</span> as well as its maximal eigenvalue be uniformly bounded from above . Then taking portfolio processes such that <span class="math inline">\(|\pi_t| \leq K\)</span> for all <span class="math inline">\(t\)</span>, we have that all <span class="math inline">\(\mathbb{Q}\)</span> - local martingale portfolio values are actually <span class="math inline">\(\mathbb{Q}\)</span>-martingales. Then by the eigenvalue bounds on the covariance matrix, one will see that the log-optimal portfolio is also such that <span class="math inline">\(|\pi^*_t| \leq K\)</span> for all <span class="math inline">\(t\)</span>. This formalizes our approach below.</p></li>
+</ul>
+<p>We say <span class="math inline">\(\pi = (\pi^1, \cdots, \pi^I)\)</span> and <span class="math inline">\(1 - \pi_t^T \vec{1}\)</span> is invested into the money market at time <span class="math inline">\(t\)</span>. Note that we do not distinguish vectors and scalars with a notation other than the case with <span class="math inline">\(1\)</span> vs <span class="math inline">\(\vec{1}\)</span>.</p>
+<ul>
+<li>The portfolio process associated to <span class="math inline">\(\pi\)</span> we call <span class="math inline">\(V^\pi_t\)</span> and it is described through its return:</li>
+</ul>
+<p><span class="math display">\[
+\frac{dV^\pi_t}{V^\pi_t} = \sum_{i=1}^n \pi^i_t \frac{dS^i_t}{S^i_t} + (1 - \pi_t^T \vec{1})r_t dt,
+\]</span> which can be written as</p>
+<p><span class="math display">\[
+\frac{dV^\pi_t}{V^\pi_t} = [r_t + \pi_t^T(\mu_t - \vec{1}r_t)]dt +  \pi_t^T \sigma_t dW_t.
+\]</span></p>
+</section>
+<section id="numeraire-portfolio" class="level1">
+<h1>Numeraire Portfolio</h1>
+<p>We now wish to price any attainable time <span class="math inline">\(T\)</span> claim <span class="math inline">\(X\)</span>. We know that since <span class="math inline">\((\sigma_t\sigma_t^T)\)</span> is invertible, we have no arbitrage. From the standard theory, we do not have attainability of any claim (as <span class="math inline">\(J &gt; I\)</span>), but we can price any attainable claim <span class="math inline">\(X\)</span> with any choice of the infinitely many risk neutral measures <span class="math inline">\(\mathbb{Q}\)</span>. The result is <span class="math display">\[
+\Pi(t;X) = \mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right]
+\]</span> where <span class="math inline">\((B_t)\)</span> is the price process associated to a <span class="math inline">\(100\%\)</span> money-market allocation, i.e.&nbsp;<span class="math inline">\(\frac{dB_t}{B_t} = r_t dt\)</span>. This holds where <span class="math inline">\(\mathbb{Q}\)</span> is a measure such that <span class="math inline">\(\frac{S^i_t}{B_t}\)</span> are <span class="math inline">\(\mathbb{Q}\)</span>-martingales for all <span class="math inline">\(i \in \{1, \cdots, I\}\)</span>. The reasoning is that since all stocks and bonds are <span class="math inline">\(\mathbb{Q}\)</span>-martingales, it is easy to show that any portfolio is also a <span class="math inline">\(\mathbb{Q}\)</span>-martingales and hence any attainable claim is a <span class="math inline">\(\mathbb{Q}\)</span>-martingale.</p>
+<p>Thus given a model, in order to price attainable claims, one would have to construct a <span class="math inline">\(\mathbb{Q}\)</span> such that all stocks are <span class="math inline">\(\mathbb{Q}\)</span> martingales.</p>
+<p>There is a secondary approach, however. What if instead of finding a measure <span class="math inline">\(\mathbb{Q}\)</span> (one of infinitely many) such that all portfolio values are <span class="math inline">\(\mathbb{Q}\)</span>-martingales, what if we instead find a numeraire such that all portfolio values or <span class="math inline">\(\mathbb{P}\)</span> martingales with respect to this numeraire? Of course such a numeraire exists as it correpsonds to any of the EMMs <span class="math inline">\(\mathbb{Q}\)</span>. However, what if there exists a numeraire that is the wealth process associated to a portfolio <span class="math inline">\(\tilde{\pi}\)</span>? If such a portfolio <span class="math inline">\(\tilde{\pi}\)</span> exists, then for all attainable time <span class="math inline">\(T\)</span> claims <span class="math inline">\(X\)</span>, we will have</p>
+<p><span class="math display">\[
+\Pi(t;X) = \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\tilde\pi}_T/V^{\tilde\pi}_t} \Bigg| \mathcal{F}_t \right]
+\]</span> from a trivial replicating argument. At first, we must ask if this is even possible. We show that it is indeed possible, and we do this by constructing such a portfolio.</p>
+<section id="constructing-the-numeraire-portfolio" class="level2">
+<h2 class="anchored" data-anchor-id="constructing-the-numeraire-portfolio">Constructing the numeraire portfolio</h2>
+<p>We can try to find such a numeraire portfolio <span class="math inline">\(\tilde{\pi}\)</span>, i.e.&nbsp;a portfolio such that <span class="math inline">\(\left( V_t^\pi/V_t^{\tilde{\pi}} \right)_t\)</span> is a <span class="math inline">\(\mathbb{P}\)</span> martingale for all portfolios <span class="math inline">\(\pi\)</span>, by demanding that <span class="math inline">\(d\left( V_t^\pi/V_t^{\tilde{\pi}} \right)\)</span> is driftless. Equivalently, we require <span class="math inline">\(\frac{d\left(V_t^\pi/V_t^{\tilde{\pi}} \right)}{V_t^\pi/V_t^{\tilde{\pi}}}\)</span> is driftless. (Note this is the portfolio <span class="math inline">\(\pi\)</span>’s return in units of <span class="math inline">\(V_t^{\tilde{\pi}}\)</span> which will be useful to compute. As a general trick, when working with a portfolio process, it is often easiest to work in terms of its return. When working with a ratio of assets, the ratio represents the price of one in terms of units of the other and thus itself represents a price process. When working with this new price process it is often useful to work in terms of its return.)</p>
+<p>Now let’s construct the numeraire portfolio. We wish to find <span class="math inline">\(\tilde{\pi}\)</span> such that for all <span class="math inline">\(\pi\)</span>, we have</p>
+<p><span class="math display">\[\frac{d\left(V_t^\pi/V_t^{\tilde{\pi}} \right)}{V_t^\pi/V_t^{\tilde{\pi}}}\]</span> is driftless. Hence <span class="math inline">\((V_t^\pi/V_t^{\tilde{\pi}})\)</span> will be a <span class="math inline">\(\mathbb{P}\)</span> martingale.</p>
+<p>First, by Ito’s lemma, we have</p>
+<p><span class="math display">\[\frac{d\left(V_t^\pi/V_t^{\tilde{\pi}} \right)}{V_t^\pi/V_t^{\tilde{\pi}}} = \frac{dV^\pi_t}{V^\pi_t} - \frac{dV^\tilde\pi_t}{V^\tilde\pi_t} +  \left(\frac{dV^\tilde\pi_t}{V^\tilde\pi_t} \right)^2 - \frac{dV^\tilde\pi_t dV^\pi_t}{V^\tilde\pi_t V^\pi_t}.\]</span></p>
+<p>The surprising cleanliness of the above equation is due to the fact that we are working with a highly relevant quantity – the return of one portfolio in units of another (or the relative return). Substituting for the portfolio returns and factoring, we have</p>
+<p><span class="math display">\[\frac{d\left(V_t^\pi/V_t^{\tilde{\pi}} \right)}{V_t^\pi/V_t^{\tilde{\pi}}} = (\pi_t - \tilde{\pi}_t)^T \left((\mu_t - \vec{1}r_t) dt + \sigma_t dW_t - \sigma_t \sigma_t^T \tilde{\pi_t} dt\right) .\]</span></p>
+<p>Thus it is driftless if and only if</p>
+<p><span class="math display">\[ (\pi_t - \tilde{\pi}_t)^T \left((\mu_t - \vec{1}r_t)  - \sigma_t \sigma_t^T \tilde{\pi_t}\right) = 0.\]</span></p>
+<p>We need to find a <span class="math inline">\(\tilde{\pi}\)</span> such that the above holds for all <span class="math inline">\(\pi\)</span>. This can be done for each <span class="math inline">\(t\)</span>. Denote <span class="math inline">\(x=\pi_t\)</span>, <span class="math inline">\(y=\tilde{\pi}_t\)</span>, <span class="math inline">\(b = (\mu_t - \vec{1}r_t)\)</span> and <span class="math inline">\(A = \sigma_t \sigma_t^T\)</span>. We note that by our original assumptions, <span class="math inline">\(A\)</span> is invertible.</p>
+<p>We now have the problem find <span class="math inline">\(y\)</span> such that for all <span class="math inline">\(x\)</span> it holds:</p>
+<p><span class="math display">\[
+(x-y)^T(b-Ay) = 0.
+\]</span> First, since <span class="math inline">\(A\)</span> is invertible, we can choose <span class="math inline">\(y = A^{-1}b\)</span> and we are done. However, one might wonder about uniqueness. This <span class="math inline">\(y\)</span> is infact unique as the above has to hold for all <span class="math inline">\(x\)</span>. We can choose the particular choice <span class="math inline">\(x = b - Ay + y\)</span> which shows that <span class="math inline">\(||b-Ay||^2 = 0\)</span> and hence <span class="math inline">\(y = A^{-1}b\)</span> is the only solution. What this means is that</p>
+<p><span class="math display">\[\tilde{\pi}_t =  (\sigma_t \sigma_t^T)^{-1} (\mu_t - \vec{1}r_t)\]</span> is the only numeraire portfolio.</p>
+<p>This shows that when the problem is arbitrage free, there exists a unqiue numeraire portfolio <span class="math inline">\(\tilde{\pi} = (\sigma_t \sigma_t^T)^{-1} (\mu_t - \vec{1}r_t)\)</span>. With this portfolio we have, <span class="math inline">\(\left( V_t^\pi/V_t^{\tilde{\pi}} \right)_t\)</span> is a <span class="math inline">\(\mathbb{P}\)</span> martingale for all portfolios <span class="math inline">\(\pi\)</span> which gives the relation of all portfolios:</p>
+<p><span class="math display">\[
+\frac{V^\pi_t}{V^{\tilde\pi}_t} = \mathbb{E}^\mathbb{P} \left[ \frac{V^\pi_T}{V^{\tilde\pi}_T} \Bigg| \mathcal{F}_t \right]
+\]</span></p>
+<p>and hence for all attainable claims <span class="math display">\[
+\Pi(t;X) = \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\tilde\pi}_T/V^{\tilde\pi}_t} \Bigg| \mathcal{F}_t \right].
+\]</span> This portfolio turns out to be the log-optimal portfolio. This is easily seen as taking <span class="math inline">\(V^\pi_0 = V^{\tilde\pi}_0\)</span> (i.e.&nbsp;the portfolio values start with the same initial wealth), we have</p>
+<p><span class="math display">\[
+1 = \mathbb{E}^\mathbb{P} \left[ \frac{V^\pi_T}{V^{\tilde\pi}_T} \right].
+\]</span></p>
+<p>Taking log and applying Jensen’s inequality will give that</p>
+<p><span class="math display">\[
+  \mathbb{E}^\mathbb{P} \left[\log(V^\pi_T)\right] \leq \mathbb{E}^\mathbb{P} \left[\log(V^{\tilde{\pi}}_T) \right], \quad \forall \pi,
+\]</span> hence the numeraire portfolio is the log-optimal portfolio.</p>
+</section>
+</section>
+<section id="a-remark-on-non-uniqueness-of-the-emm" class="level1">
+<h1>A remark on non-uniqueness of the EMM</h1>
+<p>In our case, we have an incomplete market. However, we can price any attainable claim with one of the infinitely many EMMs <span class="math inline">\(\mathbb{Q}\)</span>. Why then was the numeraire portfolio unique?</p>
+<p>Indeed there are infinitely many EMM <span class="math inline">\(\mathbb{Q}\)</span>, and hence there are infinitely many stochastic discount factors defined by <span class="math inline">\(m_T = \frac{d\mathbb{Q}}{d\mathbb{P}} \Big|_\mathcal{F_t} \frac{1}{B_T/B_t}\)</span> that can be used as the SDF to price claims under <span class="math inline">\(\mathbb{P}\)</span>. However only one out of these SDFs corresponds to an attainable portfolio. That is <span class="math inline">\(\frac{d\mathbb{Q}}{d\mathbb{P}} \Big|_\mathcal{F_t} \frac{1}{B_T/B_t} = \frac{1}{V^{\tilde{\pi}}_T/V^{\tilde{\pi}}_t}\)</span> for a unique <span class="math inline">\(Q\)</span> and only when <span class="math inline">\(V^{\tilde{\pi}}\)</span> is the log-optimal portfolio.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

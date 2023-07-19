@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>blog - About</title>
+<title>blog - Overview</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -83,7 +83,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" rel="" target="" aria-current="page">
+    <a class="nav-link" href="./index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -93,7 +93,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
         <li>
     <a class="dropdown-item" href="./kellyoptimalPEtiming.html" rel="" target="">
- <span class="dropdown-text">Kelly Optimality throughout Market Cycles</span></a>
+ <span class="dropdown-text">Kelly Optimal</span></a>
   </li>  
     </ul>
   </li>
@@ -132,12 +132,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#academic-research" id="toc-academic-research" class="nav-link active" data-scroll-target="#academic-research">Academic Research</a></li>
-  <li><a href="#blog-projects-and-research" id="toc-blog-projects-and-research" class="nav-link" data-scroll-target="#blog-projects-and-research">Blog Projects and Research</a>
-  <ul class="collapse">
-  <li><a href="#log-optimal-portfolio-and-option-pricing" id="toc-log-optimal-portfolio-and-option-pricing" class="nav-link" data-scroll-target="#log-optimal-portfolio-and-option-pricing">Log-Optimal Portfolio and Option Pricing</a></li>
-  <li><a href="#kelly-optimality-throughout-market-cycles" id="toc-kelly-optimality-throughout-market-cycles" class="nav-link" data-scroll-target="#kelly-optimality-throughout-market-cycles">Kelly Optimality throughout Market Cycles</a></li>
-  </ul></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#theorems" id="toc-theorems" class="nav-link" data-scroll-target="#theorems">Theorems</a></li>
   </ul>
 </nav>
     </div>
@@ -146,7 +142,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About</h1>
+<h1 class="title">Overview</h1>
 </div>
 
 
@@ -161,26 +157,42 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<p>My name is Robert Balkin, and I have a deep interest in all-things finance. This includes both theoretical as well as practical scenarios where I enjoy to mix the tools and techniques of quantitative finance with the traditional viewpoints of finance on fundamental valuation. Although this is how I think about and approach markets, not all of this will be covered in this blog. This blog is a catch all for the things I have been thinking about with regard to finance that would be appropriate to showcase for all online participants, especially those with a mathematical / quantitative finance background.</p>
-<section id="academic-research" class="level2">
-<h2 class="anchored" data-anchor-id="academic-research">Academic Research</h2>
-<p>As for my background, I am completing my PhD in mathematics from UC Santa Barbara with a graduation date in September of 2023. In this time, I have studied machine learning methods for solving stochastic optimal control problems and stochastic differential games. These problems are abundant in finance although the solutions can be quite difficult. The machine learning methods I have studied allow one to solve these problems that would be otherwise too difficult with other methodologies. For example, my paper <a href="https://arxiv.org/pdf/2307.06450.pdf">here</a> showcases a technique to solve stochastic delay differential games with machine learning and highlights various financial problems that can be solved with this technique. Along with applications to finance, I have worked on applying these methodologies to Covid-19 models in a game-theoretic setting which is featured <a href="https://msml21.github.io/papers/id42.pdf">here</a> in the conference papers on Mathematical and Scientific Machine Learning 2021 and <a href="ams.org/journals/notices/202211/rnoti-p1878.pdf">here</a> in the AMS notices.</p>
-<p>For this blog, I wanted to highlight some of my thoughts in a more accessible and informal manner. In part, some work is inspired by my academic research such as my blog post on <a href="./kellyoptimalPEtiming.html">Kelly Optimal portfolios among Market Cycles</a>. Some work is just my own personal excursion into financial math topics of great interest to me such that <a href="./logoptimal1.html">part 1</a>, <a href="./logoptimal2.html">part 2</a>, and <a href="./logoptimal3.html">part 3</a> on how the log-optimal portfolio can be used in option pricing in a surprisingly beautiful manner!</p>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>We first introduce a general model and define the growth optimal portfolio associated to it. Such a portfolio can be also called Kelly or log optimal.</p>
+<p>First we define <span class="math inline">\(S^i_t\)</span> to be the total return process of asset <span class="math inline">\(i\)</span>. This is so that dividends can be ignored. When we have options on the stock price and not the total return process, we can adjust as needed.</p>
+<p>We start by defining a filtration <span class="math inline">\(\mathcal{F}_t\)</span> which represents the information in the market up to and including time <span class="math inline">\(t\)</span>. We then have</p>
+<p><span class="math display">\[dS^i_t = \mu^i_t dt + \sum_{j=1}^M \sigma^{i,j}_t dW^j_t.\]</span> for each <span class="math inline">\(i \in \{1, \cdots, N\}\)</span> and also <span class="math display">\[dB_t = r_t B_tdt\]</span> for the money market account.</p>
+<p>It is important to note that <span class="math inline">\(\mathcal{F}_t\)</span> is not the filtration generated by the Brownian motion, but one that contains it. <span class="math inline">\(\mu_t\)</span>, <span class="math inline">\(\sigma_t\)</span>, <span class="math inline">\(r_t\)</span> are adapted to the filtration <span class="math inline">\(\mathcal{F_t}\)</span> – not just the Brownian motion. This means that they can depend on some outside information. This includes for instance, a stochastic volatility model as well as any others.</p>
+<p>Then generality of this model holds from the generality of <span class="math inline">\(\mu_t\)</span>, <span class="math inline">\(\sigma_t\)</span>, and <span class="math inline">\(r_t\)</span>. This allows for multiple sources of noise (so for instance we can think of APT models) and stochastic volatility.The model considered (HERE) for instance considers earnings and price to earnings multiple as exogenous processes and the stock price process is determined from these two. This would still fit in to this model. The reason the model maybe unrealistic is that it assumes that we actually do know the local mean rates of returns and volatilities at a given time having observed the information up and to this time.</p>
+<p>Now, we define a portfolio <span class="math inline">\(\pi_t = (\pi^1_t , \cdots, \pi^N_t)\)</span> which is a process adapted to <span class="math inline">\(\mathcal{F}_t\)</span>. We think of this portfolio in terms of the fraction of wealth allocated to each asset (intuitively: think <span class="math inline">\(\pi_t\)</span> represents the percentage allocations). The money market allocation will be <span class="math inline">\(1 - \sum_i \pi^i_t\)</span>, so that way no additional portfolio constraints must be introduced. With this notation, it is very easy to define self financing portfolios. It just corresponds to any choice of <span class="math inline">\(\pi_t = (\pi^1_t , \cdots, \pi^N_t) \in \mathbb{R}^N\)</span> (we may want to choose a bounded set so things do not explode – this corresponds to leverage constraints). The self-financing portfolio associated to <span class="math inline">\(\pi\)</span>, <span class="math inline">\(V^\pi\)</span>, is easily represented in terms of portfolio return:</p>
+<p><span class="math display">\[\frac{dV_t^\pi}{V_t^\pi} = \sum_{i=1}^N \pi^i_t \frac{dS^i_t}{S^i_t} + (1-\sum_{i=1}^N \pi^i_t) r_t dt\]</span></p>
+<p>which gives</p>
+<p><span class="math display">\[\frac{dV_t^\pi}{V_t^\pi} = \pi_t^T \mu_t dt + \pi_t^T \sigma_t dW_t + (1-\sum_{i=1}^N \pi^i_t) r_t dt\]</span></p>
+<p>where <span class="math inline">\(\mu = (\mu^1 , \cdots, \mu^N)\)</span> and <span class="math inline">\(\sigma = (\sigma^{i,j})_{i,j}\)</span>. Without loss of generality, we take <span class="math inline">\(V_0^\pi = 1\)</span> unless stated otherwise.</p>
+<p>We now can define the log-optimal portfolio as the argument maximizer out of admissible portfolio processes, <span class="math inline">\((\pi_t)\)</span>, of the expression</p>
+<p><span class="math display">\[\mathbb{E}[\log(V_t^\pi)].\]</span></p>
 </section>
-<section id="blog-projects-and-research" class="level2">
-<h2 class="anchored" data-anchor-id="blog-projects-and-research">Blog Projects and Research</h2>
-<p>Throughout my PhD research, there have been some (re)discoveries of mine that fascinated me. I wanted to document and share these discoveries – primarily so I could remember the result and underlying derivations, but also to share with others the same joy I found in certain discoveries. I appreciate a new perspective as long as it encapsulates what is true. I found this case in my study of the log-optimal portfolio and how it can be used to price options under <span class="math inline">\(\mathbb{P}\)</span>, the true physical measure. I won’t spoil the surprise for now, but I found the underlying math to be fascinating as well as it’s implication for an intuitive viewpoint of option pricing!</p>
-<p>At the same time, I wanted to showcase some of the small-time applied research I have done outside of my PhD for my own fun. I studied the SP500 valuation market cycle and modeled it according to a mean-reverting stochastic process for the earnings yield. With this new model, I considered optimal portfolios to see 1) the viability of this model throughout history 2) to showcase an optimization methodology based on neural networks that can be applied to more realistic models.</p>
-<section id="log-optimal-portfolio-and-option-pricing" class="level3">
-<h3 class="anchored" data-anchor-id="log-optimal-portfolio-and-option-pricing">Log-Optimal Portfolio and Option Pricing</h3>
-<p>Traditionally, financial derivatives are priced as their discounted payout under a risk neutral measure. I was intrigued by an approach that I (re)discovered which showed the price of the derivative is actually its payout under the physical measure when a certain unit of account (or numeraire) was considered. Basically, if one takes as unit of account the so-called “growth-optimal portfolio”, then the option’s price is exactly the expected value of the option’s payout under the true physical measure! In other words, pricing a derivative/security/asset in units of growth-optimal portfolio naturally discounts for risk and time! Not only is this true, but it is true in very general senses. For my own derivations, I have <a href="./logoptimal1.html">shown this to be true for the traditional Black-Scholes model</a>, a <a href="./logoptimal2.html">generalized model for all attainable claims</a>, and even true for a <a href="./logoptimal3.html">utility based pricing in the case of unattainable claims</a>!</p>
-</section>
-<section id="kelly-optimality-throughout-market-cycles" class="level3">
-<h3 class="anchored" data-anchor-id="kelly-optimality-throughout-market-cycles">Kelly Optimality throughout Market Cycles</h3>
-<p>Next, I am highly interested in finding long-term alphas through exploiting macro inefficiencies. I believe that asset prices become irrationally high and irrationally low throughout periods of time. I also believe that this can be very tricky to understand when it is the case and the time it can take for mean-reversion results in tremendous risk for a “macro-arbitrageur” who can be wrong for extended periods of time. In retrospect, we can point to a 2000 where the stock-market experienced a Shiller CAPE ratio of 44 while the US 30 year TIPs yielded over 4% real! The reality of the situation ultimately pointed to the fact that valuations of the SP500 were absurd relative to the high (real and nominal) yields offered by ultra-low default risk US treasury bonds, however it is always obvious in retrospect. But this begs the question, what is the fair price of equities and how can this change over time? How should one allocate to equities as a function of valuation if 1) valuations can be effectively captured in the first place (i.e.&nbsp;how well does past and estimates capture true distribution of forward) and 2) if equities do experience overall mean-reversion tendencies due to the psychology of market participants to overbid and oversell equities throughout cycles? I begin to address these questions in my blog post on <a href="./kellyoptimalPEtiming.html">Kelly Optimal portfolios in earnings driven financial markets</a>.</p>
+<section id="theorems" class="level1">
+<h1>Theorems</h1>
+<blockquote class="blockquote">
+<p><strong>Theorem 1</strong> Assume that the claim <span class="math inline">\(\xi\)</span> is attainable. Then its unique arbitrage price is given by <span class="math display">\[\frac{\Pi(t ; \xi)}{V^{\pi^*}_T} = \mathbb{E}^{\mathbb{P}}\left[ \frac{\xi}{V^{\pi^*}_T} \bigg{|} \mathcal{F}_t \right] \]</span> That is, the log-optimal portfolio process is the appropriate numeraire such that option pricing is simply the true expected value (under the real world measure <span class="math inline">\(\mathbb{P}\)</span>!) In other words, if the units of account were simply not dollars, or not bank account, but instead units of log-optimal portfolio, we could simply understand option pricing in the most naive way possible (the expectation of the payout under the true measure)… and it would turn out to be right!</p>
+</blockquote>
+<p>These results are somewhat known but surprisingly somewhat unknown. Theorem 2 in particular. One can do options pricing without realizing that Theorem 2 provides an alternative method all along for very general models and very general attainable claims.</p>
+<p>Lastly, the problem with Theorem 2 is that <span class="math inline">\(\xi\)</span> needs to be attainable. But what if <span class="math inline">\(\xi\)</span> is generally unattainable as would be the case for generic claims in a model when <span class="math inline">\(M &gt; N\)</span> for instance when there are more noises than assets. This is a real world setting. However, we can borrow from utility theory. The idea is that although a claim cannot be hedged, its marginal addition to a portfolio would either add or remove utility for a given investor. This investor (identified by their utility function) has a price of the option such that the marginal utility associate with the addition of the option is <span class="math inline">\(0\)</span>. This would be the investor’s utility price for the option.</p>
+<p>To make this more rigorous:</p>
+<blockquote class="blockquote">
+<p>** Definition 1 ** Consider a claim that pays out <span class="math inline">\(\xi_T\)</span> at time <span class="math inline">\(T\)</span>. Let <span class="math inline">\((U_\alpha,T)\)</span> be the investor’s utility function (indexed by <span class="math inline">\(\alpha\)</span>) for horizon <span class="math inline">\(T\)</span>. This means that the investor selects a portfolio strategy <span class="math inline">\(\pi(\alpha)\)</span> such that <span class="math inline">\(\mathbb{E}[ U_\alpha(V^\pi_T)]\)</span> is maximized.</p>
+<p>Then the price <span class="math inline">\(\xi_0(\alpha)\)</span>, called investor <span class="math inline">\((U_\alpha,T)\)</span>’s indifference price for a marginal quantity, satisfies: <span class="math display">\[\frac{d}{d\epsilon} \bigg{|}_{\epsilon = 0} \mathbb{E}\bigg[ U_\alpha \left( (1-\epsilon)V^{\pi(\alpha)}_T + \epsilon \frac{\xi_T}{\xi_0(\alpha)} \right) \bigg] = 0.\]</span></p>
+<p>This can be reduced and we write <span class="math display">\[\xi_0(\alpha) = \frac{\mathbb{E}\bigg[ U_\alpha ' \left( V^{\pi(\alpha)}_T \right) \xi_T \bigg]}{\mathbb{E}\bigg[ U_\alpha ' \left( V^{\pi(\alpha)}_T \right) V^{\pi(\alpha)}_T \bigg] }.\]</span></p>
+</blockquote>
+<p>Now we have the very powerful result.</p>
+<blockquote class="blockquote">
+<p><strong>Theorem 2</strong> Let <span class="math inline">\((U_\gamma,T)\)</span> be the investor’s utility function for time horizon <span class="math inline">\(T\)</span>. In this case we take <span class="math inline">\(U_\gamma\)</span> to be any CRRA utility function <span class="math inline">\(U_\gamma(x) = \gamma x^\gamma\)</span> for <span class="math inline">\(\gamma &lt; 1\)</span>. We claim that <span class="math inline">\(\xi_0(\gamma)\)</span> does not depend on <span class="math inline">\(\gamma\)</span> and moreover,</p>
+</blockquote>
+<p><span class="math display">\[\chi_0(\alpha) = \chi_0 = \mathbb{E}^{\mathbb{P}}\left[ \frac{\chi_T}{V^{\pi^*}_T} \right].\]</span></p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

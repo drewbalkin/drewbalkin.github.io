@@ -5,16 +5,30 @@ project:
 website:
   title: "blog"
   navbar:
+    background: "primary"
     left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+    - text: "Home"
+      file: index.qmd
+    - text: "Projects"
+      menu:
+      - text: "Kelly Optimality throughout Market Cycles"
+        file: kellyoptimalPEtiming.qmd
+    - text: "Log Optimal Portfolio and Option Pricing"
+      menu:
+      - text: "Part 1"
+        file: logoptimal1.qmd
+      - text: "Part 2"
+        file: logoptimal2.qmd
+      - text: "Part 3"
+        file: logoptimal3.qmd
+      
 
 format:
   html:
-    theme: cosmo
+    theme: minty
     css: styles.css
     toc: true
+    code-fold: true
 
 
 
