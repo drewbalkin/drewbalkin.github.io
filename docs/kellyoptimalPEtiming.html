@@ -166,8 +166,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#model-derivation" id="toc-model-derivation" class="nav-link" data-scroll-target="#model-derivation">Model Derivation</a>
+  <ul class="collapse">
+  <li><a href="#justification-from-a-general-model" id="toc-justification-from-a-general-model" class="nav-link" data-scroll-target="#justification-from-a-general-model">Justification from a General Model</a></li>
+  <li><a href="#calculation" id="toc-calculation" class="nav-link" data-scroll-target="#calculation">Calculation</a></li>
+  </ul></li>
   <li><a href="#numerical-solution" id="toc-numerical-solution" class="nav-link" data-scroll-target="#numerical-solution">Numerical Solution</a></li>
   <li><a href="#analytical-solution" id="toc-analytical-solution" class="nav-link" data-scroll-target="#analytical-solution">Analytical Solution</a></li>
   <li><a href="#backtests" id="toc-backtests" class="nav-link" data-scroll-target="#backtests">Backtests</a></li>
@@ -194,60 +198,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="abstract" class="level1">
-<h1>Abstract</h1>
-<p>We consider a Kelly Optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the market multiple’s inverse, the earnings yield, is driven by an Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically. The results are back-tested on CAPE and PE ratio data.</p>
-<p>The purpose is not to showcase or recommend a strategy that is necessarily good or bad. The purpose is to highlight how neural networks can be used to successfully solve portfolio optimization problems. One could imagine a much more complicated (and more realistic) model for which one could find an optimal portfolio strategy via this approach.</p>
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<p>This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by an Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically showcasing that neural networks can be used to solve similar problems of this form in the case when no analytical solutions exist.</p>
+<p>To make such a model useful, we will have to construct a more realistic model of how earnings yield / PE ratios drive future prices. The problem with this perspective is that the current earnings level is not the best predictor of future earnings. Because of this, PE ratios can appear artificially low or high as the PE ratio does not demonstrate the actual (probabalistic) future earnings power. However, the model we use assumes that earnings are Markovian in nature and hence valuation is completely understood in terms of the trailing PE ratio (as the distribution of future earnings depends only on the current earnings).</p>
+<p>However, we present the general idea for how one can a train long-term portfolio optimization model given some assumed market dynamics.</p>
 </section>
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
-<p>We can think of our ownership of a stock at time <span class="math inline">\(t\)</span> as a claim on the future dividends <span class="math inline">\((D_s)_{s \geq t}\)</span>, where the amount <span class="math inline">\(D_s ds\)</span> per share is paid to the stockholder’s over time <span class="math inline">\([s,s+ds]\)</span>. This gives a (naive) valuation formula</p>
-<p><span class="math display">\[S_t = \int_t^{\infty}  \mathbb{E}^Q [ e^{-r(s-t)} D_s ds ],\]</span> where <span class="math inline">\(Q\)</span> is the risk-neutral measure. The problem is that 1. We don’t know the risk neutral-measure. It would have to be calibrated from market prices. 2. Market preferences for risk vary with time meaning that <span class="math inline">\(Q\)</span> itself varies with time.</p>
-<p>However, we can take this pricing formula as motivation. There are 3 factors that are going to impact the stock return at time <span class="math inline">\(t\)</span>:</p>
+<section id="model-derivation" class="level1">
+<h1>Model Derivation</h1>
+<p>Suppose we have a stock or fund with price at time <span class="math inline">\(t\)</span> given by <span class="math inline">\(S_t\)</span>. The price of the stock discounts future dividends as it is a claim on future (stochastic) dividends, where the dividends are discounted not only by time but by their risk. So how does <span class="math inline">\(S_t\)</span> then change over time?</p>
 <ol type="1">
-<li>The dividend return</li>
-<li>The change in dividends (i.e.&nbsp;recession / growth). More generally, the probability distribution of future dividends changes as new information is introduced.</li>
-<li>The market value for future dividends (change in multiple). More generally, the change in <span class="math inline">\(Q\)</span> over time as investors change their risk preferences.</li>
+<li>Dividends are paid out.</li>
+<li>The probability distribution of future dividends changes.</li>
+<li>The risk preferences of investors change.</li>
 </ol>
 <p>So one component of the return (and the stochastic nature of the stock return) is from directly receiving the random stochastic payments given by the process <span class="math inline">\((D_t)\)</span>.</p>
 <p>The second component of return is that this probabilistic future stream of dividends changes over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.</p>
 <p>However, there is a third component to return. Even if the probability distribution of future dividends were not to change over a time interval <span class="math inline">\([t,t+dt]\)</span>, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends.</p>
 <p>In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth, and market multiple changes.</p>
 <p>Note that a company or stock index may not pay all excess profits or earnings, as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.</p>
-<p>From now on, we will treat dividends as earnings. We assume that earnings as a whole are paid out to the investor as if it were a dividend. Afterall the profit at time <span class="math inline">\(t\)</span> is distributed to shareholders one way or another whether it is dividends, buybacks, aquisitions, or reinvestment. It is dangerous to include all of these as “dividend” payments, however it will be critical to the model.</p>
-<p>In this model, we will have a stock index whose profits (or dividends by our assumption) at time <span class="math inline">\(t\)</span> is given by the process <span class="math inline">\(D_t\)</span> where <span class="math inline">\(D_tdt\)</span> represents the total dividend payment in <span class="math inline">\([t,t+dt]\)</span> for owning <span class="math inline">\(1\)</span> unit of stock. This dividend process will be given by a GBM with mean <span class="math inline">\(\mu\)</span> and volatility <span class="math inline">\(\sigma_D\)</span>. Seperately, there is a market multiple process <span class="math inline">\(M_t\)</span> which represents the amount the market is willing to pay for the stock given its current dividend. Simply, if <span class="math inline">\(S_t\)</span> is stock price at time <span class="math inline">\(t\)</span>, then <span class="math inline">\(D_t M_t = S_t\)</span>. To model the market multiple process, we model its inverse, the dividend yield process <span class="math inline">\(y_t = \frac{1}{M_t} = \frac{D_t}{S_t}\)</span> with an OU model, which is common for interest rates. This gives the model</p>
+<p>From now on, we will treat dividends as earnings. We assume that earnings as a whole are paid out to the investor as if it were a dividend. After all, the profit at time <span class="math inline">\(t\)</span> is distributed to shareholders one way or another whether it is dividends, buybacks, acquisitions, or reinvestment. It is dangerous to include all of these as “dividend” payments, however it will be simplifying assumption for our model.</p>
+<p>In this model, we will have a stock index whose profits (or dividends by our assumption) at time <span class="math inline">\(t\)</span> is given by the process <span class="math inline">\(D_t\)</span> where <span class="math inline">\(D_tdt\)</span> represents the total dividend payment in <span class="math inline">\([t,t+dt]\)</span> for owning <span class="math inline">\(1\)</span> unit of stock. This dividend process will be given by a geometric Brownian motion with mean <span class="math inline">\(\mu_D\)</span> and volatility <span class="math inline">\(\sigma_D\)</span>. Separately, there is a market multiple process <span class="math inline">\(M_t\)</span> which represents the amount the market is willing to pay for the stock given its current dividend. Simply, if <span class="math inline">\(S_t\)</span> is stock price at time <span class="math inline">\(t\)</span>, then <span class="math inline">\(D_t M_t = S_t\)</span>. To model the market multiple process, we model its inverse, the dividend yield process <span class="math inline">\(y_t = \frac{1}{M_t} = \frac{D_t}{S_t}\)</span> with an OU model, which is common for interest rates as it allows for mean reversion. This gives the model</p>
 <p><span class="math display">\[\begin{align}
-dD_t = \mu D_t dt + \sigma_D D_t dW^1_t \\
-dy_t = -\theta(y_t-y_{eq})dt + \sigma_y dW^2_t
+dD_t = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
+dy_t = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t
 \end{align}\]</span></p>
-<p>We assume for now that the Brownian motions <span class="math inline">\(W^1,W^2\)</span> are independent although this is not entirely representative of reality. The model parameters <span class="math inline">\(\mu,\sigma_D,\theta,y_{eq},\sigma_y\)</span> will eventually be calibrated to Shiller’s data for SP500 earnings.</p>
-<p>From our exogenous dividend and dividend yield processes, we have an endogenous stock price process as <span class="math inline">\(S_t = \frac{D_t}{y_t}\)</span>. Now we can model our full problem. Let <span class="math inline">\(X_t\)</span> be the investor’s wealth at time and <span class="math inline">\(\pi_t\)</span> be the fraction of wealth in which the investor invests in the stock index.</p>
+<section id="justification-from-a-general-model" class="level2">
+<h2 class="anchored" data-anchor-id="justification-from-a-general-model">Justification from a General Model</h2>
+<p>We can think of our ownership of a stock at time <span class="math inline">\(t\)</span> as a claim on the future dividends <span class="math inline">\((D_s)_{s \geq t}\)</span>, where the amount <span class="math inline">\(D_s ds\)</span> per share is paid to the stockholder’s over time <span class="math inline">\([s,s+ds]\)</span>.Therefore, we can understand the price of the stock as the present value of all future dividends:</p>
+<p><span class="math display">\[S_t = \int_t^{\infty}  \mathbb{E}^Q [ e^{-r(s-t)} D_s ds ],\]</span> where <span class="math inline">\(Q\)</span> is the risk-neutral measure. In fact, one might have some objection to the above in that the dividends aren’t themselves hedgeable claims (outside of the corresponding stock which we are trying to price!). This is not really a problem as the above pricing need not arise from an arbitrage pricing arguement (see <a href="./logoptimal3.html">part 3 of my blog post on indifference pricing with the log-optimal portfolio</a> for instance). What is true is that <span class="math inline">\(Q\)</span> represents the discounting for risk of the dividend streams and hence its existence can be viewed from the markets desired risk preferences.</p>
+<ol type="1">
+<li><p>However the risk preferences themselves can change over time. We don’t then need to use irrational behavior to then describe changes in valuation over time.</p></li>
+<li><p>Most likely irrational behavior does play an impact. There are natural periods of the famous “irrational exuberance” and pessimism that cause valuations to move throughout time.</p></li>
+</ol>
+<p>Even if this point 2 is more of the case, we can assume the “irrational exuberance” or “pessimism” is modeled by the changing risk preference structure of the market. Thus points 1 and 2 are essentially the same. To emphasize that <span class="math inline">\(Q\)</span> is itself time dependent, we write the expectation under <span class="math inline">\(Q\)</span> instead under the true physical measure <span class="math inline">\(P\)</span> with some time dependent stochastic discount factor <span class="math inline">\(m(\cdot,t)\)</span>. That is</p>
+<p><span class="math display">\[S_t = \int_t^{\infty}  \mathbb{E}^Q [ e^{-r(s-t)} D_s ds | \mathcal{F}_t ] =   \int_t^{\infty} \mathbb{E}^P [ m(s,t) D_s ds | \mathcal{F}_t ]\]</span> where <span class="math inline">\(m(s,t)\)</span> the stochastic discount factor (decided by market participants at time <span class="math inline">\(t\)</span>) for future payouts at time <span class="math inline">\(s\)</span>.</p>
+<p>How would the SDF change over time? A very general model would be to have the SDF driven by an abstract SDE in a Hilbert space of functions: <span class="math display">\[
+dm(\cdot,t) = \mu\left(t,m(\cdot,t)\right)dt + \sigma\left(t,m(\cdot,t)\right)dW_t
+\]</span> where <span class="math inline">\(W\)</span> is a Brownian motion over a Hilbert space. Similarly, <span class="math inline">\(D_s(t)\)</span> will represent the random variable associated to the dividend at time <span class="math inline">\(s\)</span> given the filtration <span class="math inline">\(\mathcal{F}_t\)</span> which could be driven by similar functional SDE dynamics.</p>
+<p>The problem is that it will be very hard to fit such a model to historical data to try to learn the model. This can be stated simply: I can check the amount paid in dividends in 1930. However, I cannot get the 1930s view on future dividends from historical data. This <em>might</em> be <em>somewhat</em> possible in more recent years due to the options market allowing one to reconstruct the implied distribution <span class="math inline">\(Q\)</span>, however it may be hard to extract the <span class="math inline">\(Q\)</span> distribution for the dividend specifically. Maybe a future project?</p>
+<p>We assume a particular form that will allow us to fit the model to past data. We note that this utterly destroys some of the key realistic aspects of the model and can be blamed for the lack of better performance. This is given in the model below.</p>
+<ul>
+<li><strong>Model</strong>: Assume the dividend process has the Markovian structure given a Brownian motion <span class="math inline">\(W^D\)</span> of <span class="math inline">\(D_s = D_t \Phi(W^D_{s-t})\)</span> (One example is a classic GBM). Then we have that <span class="math display">\[S_t =   \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_s ds | \mathcal{F}_t ] = \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_t \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ]  \]</span> <span class="math display">\[    = D_t \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ] = D_t M_t,\]</span> where <span class="math inline">\(M_t = \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) \, ds | \mathcal{F}_t ]\)</span> is the multiple that the market is putting on the current dividend to determine the current stock price. This can always be done artificially. What gives this more meaning is the fact that while <span class="math inline">\(m(t,s)\)</span> does depend on <span class="math inline">\((W^D_{u})_{u \geq t}\)</span> (this is what makes it a <em>stochastic</em> discount factor after all), it should not depend on the absolute dividend level <span class="math inline">\(D_t\)</span>.</li>
+</ul>
+<p>Thus we have that the stock price (in the case of Markovian dividend dynamics) is given by</p>
+<p><span class="math display">\[S_t = M_t D_t.\]</span> We can then understand the stock price behavior given a model for <span class="math inline">\(M_t\)</span> and <span class="math inline">\(D_t\)</span>. A model for <span class="math inline">\(M_t\)</span> and <span class="math inline">\(D_t\)</span> can be easily attained from the data as they are directly observed. We can also write <span class="math inline">\(S_t = D_t/y_t\)</span> as we have done before.</p>
+</section>
+<section id="calculation" class="level2">
+<h2 class="anchored" data-anchor-id="calculation">Calculation</h2>
+<p>We assume for now that the Brownian motions <span class="math inline">\(W^D,W^y\)</span> are independent although this is not entirely representative of reality. The model parameters <span class="math inline">\(\mu_D,\sigma_D,\theta,y_{eq},\sigma_y\)</span> will eventually be calibrated to Shiller’s data for SP500 earnings.</p>
+<p>From our exogenous dividend and dividend yield processes, we have an endogenous stock price process as <span class="math inline">\(S_t = \frac{D_t}{y_t} = D_t M_t\)</span>. Now we can model our full problem. Let <span class="math inline">\(X_t\)</span> be the investor’s wealth at time and <span class="math inline">\(\pi_t\)</span> be the fraction of wealth in which the investor invests in the stock index.</p>
 <p>Over time <span class="math inline">\([t,t+dt]\)</span> the investor will receive dividends equal to the amount of <span class="math inline">\(\pi_t X_t y_t dt\)</span> as they have <span class="math inline">\(\pi_t X_t\)</span> invested in the stock which has a dividend yield of <span class="math inline">\(y_t\)</span>. What is meant by dividend yield here is the instantaneous dividend yield. If <span class="math inline">\(t\)</span> is measured in years where <span class="math inline">\(t=1\)</span> for instance is 1 year, then the annualized dividend yield. The second aspect of P&amp;L over <span class="math inline">\([t,t+dt]\)</span> is given by the change in stock price– the price return. The price return consists of price change due to dividend change (i.e.&nbsp;dividend growth) and also market multiple changes. Simply however, we can calculate it as follows. The stock price return is <span class="math inline">\(\frac{dS_t}{S_t}\)</span> and <span class="math inline">\(\pi_t X_t\)</span> is invested in the stock so the P&amp;L from stock price change is given by <span class="math inline">\(\pi_t X_t \frac{dS_t}{S_t}\)</span>. Adding these two components of P&amp;L together we get that <span class="math inline">\(dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{dS_t}{S_t}\)</span>.</p>
-<p>Writing this in terms of our exogenous variables <span class="math inline">\(D_t\)</span> and <span class="math inline">\(y_t\)</span>, we get that the dynamics for the wealth process <span class="math inline">\(X_t\)</span> are given by:</p>
-<p><span class="math display">\[dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{d(D_t/y_t)}{D_t/y_t}\]</span></p>
-<p>Applying Ito’s lemma, we get that</p>
-<p><span class="math display">\[dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{dD_t}{D_t} + \pi_t X_t \frac{d(1/y_t)}{1/y_t} + \pi_t X_t \frac{dD_t d(1/y_t)}{D_t/y_t} \]</span></p>
-<p>The last term is <span class="math inline">\(0\)</span> as we assume <span class="math inline">\(dW^1_t dW^2_t = 0\)</span>. Thus we get</p>
-<p><span class="math display">\[dX_t = \pi_t X_t y_t dt + \pi_t X_t\frac{dD_t}{D_t} + \pi_t X_t \frac{d(1/y_t)}{1/y_t}  \]</span></p>
-<p>Factoring out the total stock allocation <span class="math inline">\(\pi_t X_t\)</span>, we see that this is saying that the return of investing in a stock is given by <span class="math display">\[ y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t}\]</span> which is the dividend yield percent + percent dividend growth rate + percent change in multiple.</p>
-<p>Anyway we are concerned with the following problem:</p>
+<p>And from Ito’s lemma we have <span class="math display">\[\frac{dS_t}{S_t} = \frac{d(D_tM_t)}{D_tM_t} = \frac{dD_t}{D_t} + \frac{dM_t}{M_t} + \frac{dD_t}{D_t}\frac{dM_t}{M_t}.\]</span></p>
+<p>This gives</p>
+<p><span class="math display">\[dX_t = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} + \frac{dD_t d(1/y_t)}{D_t/y_t} \right) \]</span></p>
+<p>The last term is <span class="math inline">\(0\)</span> as we assume <span class="math inline">\(dW^D_t dW^y_t = 0\)</span>. We note that for some models may want to consider a correlation for these variables, but our main concern is simplicity. Thus we get</p>
+<p><span class="math display">\[\frac{dX_t}{X_t} = \pi_t \left( y_t dt + \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right) \]</span></p>
+<p>This expression is very intuitive: it says that the components of stock return are dividend yield + dividend growth rate + change in multiple.</p>
+<p>Now, we consider maximizing a utility function given these dynamics. Let’s maximize the utility of terminal wealth for some utility function <span class="math inline">\(U\)</span>. We will later choose <span class="math inline">\(U\)</span> to be <span class="math inline">\(\log\)</span>.</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu D_t dt + \sigma_D D_t dW^1_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^2_t\\
-dX_t &amp; = \pi_t X_t y_t dt + \pi_t X_t \frac{dD_t}{D_t} + \pi_t X_t \frac{d(1/y_t)}{1/y_t}\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
+dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right)\\
 \end{align}\]</span></p>
 <p><span class="math display">\[\max_{\pi} E[U(X_T)]\]</span></p>
-<p>for some utility function <span class="math inline">\(U\)</span>. We will consider the Kelly optimal portfolio allocation given by taking <span class="math inline">\(U\)</span> to be <span class="math inline">\(\log(\cdot)\)</span>. This will give the growth optimal portfolio.</p>
+<p>for some utility function <span class="math inline">\(U\)</span>. We will consider the Kelly optimal portfolio allocation given by taking <span class="math inline">\(U\)</span> to be <span class="math inline">\(\log(\cdot)\)</span>.</p>
+</section>
 </section>
 <section id="numerical-solution" class="level1">
 <h1>Numerical Solution</h1>
 <p>We wish to numerically approach the stochastic optimal control problem:</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu D_t dt + \sigma_D D_t dW^1_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^2_t\\
-dX_t &amp; = \pi_t X_t y_t dt + \pi_t X_t \frac{dD_t}{D_t} + \pi_t X_t \frac{d(1/y_t)}{1/y_t}\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
+dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right)\\
 \end{align}\]</span></p>
-<p><span class="math display">\[\max_{\pi} E[U(X_T)].\]</span></p>
+<p><span class="math display">\[\max_{\pi} E[U(X_T)]\]</span></p>
 <p>This can be done using neural networks as follows.</p>
 <p>First we assume that we are looking for closed loop feedback form controls that is <span class="math inline">\(\pi_t = \pi(D_t,y_t,X_t,t)\)</span>. In other words, we decide our portfolio allocation based on the current state of our wealth, the dividend, and dividend yield, and the current time. Logically, we should expect to see that in reality <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. That is the only relevant information to decide the portfolio allocation should be the current time <span class="math inline">\(t\)</span> (because the model ends at time <span class="math inline">\(T\)</span>) and the current dividend yield <span class="math inline">\(y_t\)</span> as we decide whether we think stocks are expensive or not, as well as how important that is to the portfolio allocation. Since we are calculating the expected value of the <span class="math inline">\(\log(\cdot)\)</span>, a myopic utility function, it will turn out the true optimal portfolio does not depend on time <span class="math inline">\(t\)</span>, but only dividend yield <span class="math inline">\(y_t\)</span>. However, for our numerical approach, this is not necessary and we can pretend we did not know any better.</p>
 <p>Assuming that these are the only factors that matter, let us look for the optimal control <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. We approximate the optimal control by looking for the optimal control in a class of neural networks.</p>
@@ -276,8 +302,8 @@ dX_t &amp; = \pi_t X_t y_t dt + \pi_t X_t \frac{dD_t}{D_t} + \pi_t X_t \frac{d(1
 </div>
 <p>With our neural network portfolio control <span class="math inline">\(\pi_{NN}(t,y_t;\theta)\)</span> defined, let us simulate the dynamics of the wealth process under this choice of portfolio allocation. We will numerically simulate:</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu D_t dt + \sigma_D D_t dW^1_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^2_t\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
 dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t}\bigg)\\
 \end{align}\]</span></p>
 <p><span class="math display">\[\max_{\pi} E[\log(X_T)].\]</span></p>
@@ -290,7 +316,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> <span class="dv">20</span> <span class="co">#Choice of final time for ODE.</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>N_steps <span class="op">=</span> <span class="dv">100</span> <span class="co">#Number of time discretizations of ODE.</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>N_sim <span class="op">=</span> <span class="dv">2</span><span class="op">**</span><span class="dv">10</span> <span class="co">#number of simulations to do in calculating expected log wealth.</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>N_epochs <span class="op">=</span> <span class="dv">5000</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>N_epochs <span class="op">=</span> <span class="dv">5</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> T<span class="op">/</span>N_steps <span class="co">#size of dt for euler scheme</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">#parameters</span></span>
@@ -354,7 +380,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
 <span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="kellyoptimalPEtiming_files/figure-html/cell-3-output-1.png" width="600" height="449"></p>
+<p><img src="kellyoptimalPEtiming_files/figure-html/cell-3-output-1.png" width="609" height="449"></p>
 </div>
 </div>
 <p>We note that simulating portfolios has one problem. Although we have defined our portfolio to be one of finite leverage as our neural network output is not allowed to employ over <span class="math inline">\(300\%\)</span> alloaction to the risky asset, it is still possible that a blow up occurs. To combat this, we employ 1. an adjustment to the earnings yield process that makes it impossible for the stock market to trade above 200x earnings (this will be incorporated in optimal portfolio strategies) 2. an adjustment to wealth such that if the wealth were to go negative, it will remain at <span class="math inline">\(0\)</span> for all time. This will make the log undefined so we have to add a very small amount <span class="math inline">\(2^{-52}\)</span> to the loss function so that the log-wealth is always defined even for the trainings which cause wealth to go to <span class="math inline">\(0\)</span>.</p>
@@ -417,7 +443,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="kellyoptimalPEtiming_files/figure-html/cell-4-output-1.png" width="783" height="486"></p>
+<p><img src="kellyoptimalPEtiming_files/figure-html/cell-4-output-1.png" width="785" height="486"></p>
 </div>
 </div>
 <p>We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is inutitive especially given the model dynamics which models in mean reversion of PE ratios.</p>
@@ -456,7 +482,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    plt.legend()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="kellyoptimalPEtiming_files/figure-html/cell-5-output-1.png" width="606" height="449"></p>
+<p><img src="kellyoptimalPEtiming_files/figure-html/cell-5-output-1.png" width="627" height="449"></p>
 </div>
 </div>
 <p>Interestingly, we see that the allocation to equities does not depend on time, only PE, as all the curves overlap. Of course we see some differences in the curves, but this because we are approximating the true Kelly optimal with neural networks! Actually, it turns out we can derive the analytical solution for Kelly Optimal in this case.</p>
@@ -466,22 +492,22 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <p>We now present the analytical solution to compare with our trained neural network.</p>
 <p>We must solve:</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu D_t dt + \sigma_D D_t dW^1_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^2_t\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
 dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \bigg)\\
 \end{align}\]</span></p>
 <p><span class="math display">\[\arg \max_{\pi} E[\log(X_T)].\]</span></p>
 <p>We are looking for a Markovian control <span class="math inline">\(\pi_t = \pi(t,D_t,y_t,X_t)\)</span>, but we expect the solution to only depend on <span class="math inline">\(y_t\)</span> for reasons addressed earlier.</p>
 <p>We proceed by considering <span class="math inline">\(\log(X_t)\)</span>. With Ito’s lemma we have that <span class="math inline">\(d \log(X_t) = \frac{dX_t}{X_t} - \frac{1}{2}\Big( \frac{dX_t}{X_t} \Big)^2\)</span>, which gives:</p>
-<p><span class="math display">\[d \log(X_t) = \pi_t \bigg(y_tdt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \bigg) - \frac{1}{2} \pi_t^2 \bigg( \Big(\frac{dD_t}{D_t} \Big)^2 + \Big(  \frac{d(1/y_t)}{1/y_t} \Big)^2 \bigg)\]</span> where we have simplified according to <span class="math inline">\(dW^1dW^2 = 0\)</span>.</p>
+<p><span class="math display">\[d \log(X_t) = \pi_t \bigg(y_tdt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \bigg) - \frac{1}{2} \pi_t^2 \bigg( \Big(\frac{dD_t}{D_t} \Big)^2 + \Big(  \frac{d(1/y_t)}{1/y_t} \Big)^2 \bigg)\]</span> where we have simplified according to <span class="math inline">\(dW^DdW^y = 0\)</span>.</p>
 <p>Computing some of these terms:</p>
-<p><span class="math display">\[\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^2_t\]</span></p>
+<p><span class="math display">\[\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^y_t\]</span></p>
 <p>This gives us:</p>
-<p><span class="math display">\[d \log(X_t) = \pi_t \bigg(y_t + \mu + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \bigg)dt - \frac{1}{2} \pi_t^2 \bigg( \sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} \bigg)dt + \ "noise \ terms".\]</span></p>
+<p><span class="math display">\[d \log(X_t) = \pi_t \bigg(y_t + \mu_D + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \bigg)dt - \frac{1}{2} \pi_t^2 \bigg( \sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} \bigg)dt + \ "noise \ terms".\]</span></p>
 <p>Taking integral and then expectation (the integral against noise has expectation 0), we get:</p>
-<p><span class="math display">\[\mathbb{E}[\log(X_t)] =  \log(X_0) + \mathbb{E} \bigg[   \int_0^T \bigg( \pi_t \Big(y_t + \mu + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big) - \frac{1}{2} \pi_t^2 \Big( \sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} \Big) \bigg) dt \bigg].\]</span></p>
+<p><span class="math display">\[\mathbb{E}[\log(X_t)] =  \log(X_0) + \mathbb{E} \bigg[   \int_0^T \bigg( \pi_t \Big(y_t + \mu_D + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big) - \frac{1}{2} \pi_t^2 \Big( \sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} \Big) \bigg) dt \bigg].\]</span></p>
 <p>This can be maximized by maximizing the integral pointwise for each <span class="math inline">\(t\)</span> (it is a concave down parabola in terms of <span class="math inline">\(\pi\)</span>). Taking the derivative with repsect to <span class="math inline">\(\pi\)</span> and setting <span class="math inline">\(=0\)</span>, we get</p>
-<p><span class="math display">\[\pi^*_t = \frac{y_t + \mu + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2}}{\sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} }.\]</span></p>
+<p><span class="math display">\[\pi^*_t = \frac{y_t + \mu_D + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2}}{\sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} }.\]</span></p>
 <p>This can be simplified. However, in this form, we see that the top represents the components of return (return due to yield + dividend growth + mean reversion), while the denominator represents the components of variance (dividend variance + market multiple variance).</p>
 <p>As expected, we see that <span class="math inline">\(\pi^*_t = \pi^* (y_t)\)</span>. That is the optimal portolio allocation is decided purely based on the current earnings yield.</p>
 <p>Keep in mind the yield here <span class="math inline">\(y_t\)</span> is a continuously compounded yield. So saying <span class="math inline">\(y_t = 0.1\)</span> for instance actually corresponds to the annualized rate <span class="math inline">\(e^{y_t} - 1 = 0.105\)</span></p>
@@ -531,7 +557,7 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 </div>
 <p>The cause for differences: in our model, we did not allow the PE ratio to go above 200. We also naturually capped the leverage of the NN based control to be <span class="math inline">\(300\%\)</span> whereas here we are rounding the true Kelly control to be maxed at <span class="math inline">\(300\%\)</span> for comparison purposes.</p>
 <p>Also we see the bizarre relation where the true Kelly control will start going up at a large enough PE! This is due to a modelling error where we take <span class="math inline">\(y\)</span> to be given by an OU. The problem is that under the OU model, if we isolate the “change in multiple” component to stock price return, <span class="math inline">\(\frac{d(1/y_t)}{1/y_t}\)</span>, we see that there are problems when <span class="math inline">\(y_t\)</span> is near <span class="math inline">\(0\)</span>. When <span class="math inline">\(y_t\)</span> is near <span class="math inline">\(0\)</span>, the change in multiple’s contribution to portfolio return is to have an infinite mean return and infinite variance. This is not true in reality.</p>
-<p><span class="math display">\[\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^2_t\]</span></p>
+<p><span class="math display">\[\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^y_t\]</span></p>
 <p>Here we see the mean return and volatility of multiple compression / expansion go to infinity as <span class="math inline">\(y_t\)</span> goes to <span class="math inline">\(0\)</span>. This causes a model issue that we believe wouldn’t exist in reality. In our model, we actually make PEs max out at 200, which makes the NN allocation control seem more believable (because it was trained on perhaps a slightly more believable model) than the true Kelly.</p>
 </section>
 <section id="backtests" class="level1">
@@ -695,7 +721,7 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="kellyoptimalPEtiming_files/figure-html/cell-9-output-1.png" width="814" height="431"></p>
+<p><img src="kellyoptimalPEtiming_files/figure-html/cell-9-output-1.png" width="838" height="431"></p>
 </div>
 <div class="cell-output cell-output-display">
 <pre><code>&lt;Figure size 672x480 with 0 Axes&gt;</code></pre>

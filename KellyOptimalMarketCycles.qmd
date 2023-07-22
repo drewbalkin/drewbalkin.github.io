@@ -81,7 +81,7 @@ We assume for now that the Brownian motions $W^D,W^y$ are independent although t
 
 From our exogenous dividend and dividend yield processes, we have an endogenous stock price process as $S_t = \frac{D_t}{y_t} = D_t M_t$. Now we can model our full problem. Let $X_t$ be the investor's wealth at time and $\pi_t$ be the fraction of wealth in which the investor invests in the stock index.
 
-Over time $[t,t+dt]$ the investor will receive dividends equal to the amount of $\pi_t X_t y_t dt$ as they have $\pi_t X_t$ invested in the stock which has a dividend yield of $y_t$. What is meant by dividend yield here is the instantaneous dividend yield. If $t$ is measured in years where $t=1$ for instance is 1 year, then the annualized dividend yield. The second aspect of P&L over $[t,t+dt]$ is given by the change in stock price-- the price return. The price return consists of price change due to dividend change (i.e. dividend growth) and also market multiple changes. Simply however, we can calculate it as follows. The stock price return is $\frac{dS_t}{S_t}$ and $\pi_t X_t$ is invested in the stock so the P&L from stock price change is given by $\pi_t X_t \frac{dS_t}{S_t}$. Adding these two components of P&L together we get that $dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{dS_t}{S_t}$.
+Over time $[t,t+dt]$ the investor will receive dividends equal to the amount of $\pi_t X_t y_t dt$ as they have $\pi_t X_t$ invested in the stock which has a dividend yield of $y_t$. What is meant by dividend yield here is the instantaneous dividend yield. If $t$ is measured in years where $t=1$ for instance is 1 year, then the annualized dividend yield. The second aspect of P&L over $[t,t+dt]$ is given by the change in stock price-- the price return. The price return consists of price change due to dividend change and also market multiple changes. Simply however, we can calculate it as follows. The stock price return is $\frac{dS_t}{S_t}$ and $\pi_t X_t$ is invested in the stock so the P&L from stock price change is given by $\pi_t X_t \frac{dS_t}{S_t}$. Adding these two components of P&L together we get that $dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{dS_t}{S_t}$.
 
 And from Ito's lemma we have $$\frac{dS_t}{S_t} = \frac{d(D_tM_t)}{D_tM_t} = \frac{dD_t}{D_t} + \frac{dM_t}{M_t} + \frac{dD_t}{D_t}\frac{dM_t}{M_t}.$$
 
@@ -93,10 +93,10 @@ The last term is $0$ as we assume $dW^D_t dW^y_t = 0$. We note that for some mod
 
 $$\frac{dX_t}{X_t} = \pi_t \left( y_t dt + \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right) $$
 
-This expression is very intuitive: it says that the components of stock return are dividend yield + dividend growth rate + change in multiple.
+This expression is very intuitive: it says that the components of stock return are dividend yield + dividend growth (or decay) + change in multiple.
 
 
-Now, we consider maximizing a utility function given these dynamics. Let's maximize the utility of terminal wealth for some utility function $U$. We will later choose $U$ to be $\log$.
+Suppose an investor has utility function $U$ which will not change for them over the course of their lifetime. That is unlike the market, the investor will not vary his risk preferences through time. We can then consider the utility maximization problem given in terms of a controlled SDE-- this is a typical stochastic optimal control problem.
 
 \begin{align}
 dD_t & = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
@@ -106,23 +106,35 @@ dX_t & = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \
 
 $$\max_{\pi} E[U(X_T)]$$
 
-for some utility function $U$. We will consider the Kelly optimal portfolio allocation given by taking $U$ to be $\log(\cdot)$.
+for some utility function $U$. We will consider the Kelly optimal portfolio allocation given by taking $U$ to be $\log(\cdot)$. 
 
+### Comment on the Kelly / Log / Growth Optimal Portfolio
+
+The nice thing about the Kelly optimal portfolio $\pi^*$ (the portfolio that maximizes log-wealth) is that it has the property that $P\left( \lim_{T \rightarrow \infty} \left(\frac{V^{\pi^*}_T}{V^{\pi}_T}\right)^{1/T} \geq 1\right) = 1$ for all other portfolios $\pi$. This is not true just for the Black-Scholes model, but actually fairly generic models (including the one we have introduced above).
+
+Essentially, this means this portfolio strategy has corresponding wealth processes that almost surely long-term beats any other portfolio.
+
+This is indeed a nice property but it doesn't mean that the Kelly strategy is the *right* strategy. For example, how long is long-term?
+
+To me, the idea of Kelly portfolios is not useful because it is *the* correct strategy (it definitely depends on each person!), but is a useful base-point for which investors can orient themselves around.
+
+Secondly, all these portfolio optimization methods have the problem that one needs to know the true distribution of future returns, and they are sensitive to perturbations of the underlying distribution.
 
 # Numerical Solution
-We wish to numerically approach the stochastic optimal control problem:
+We wish to solve the stochastic optimal control problem:
 
 \begin{align}
 dD_t & = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
 dy_t & = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
-dX_t & = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right)\\
+dX_t & = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right),\\
 \end{align}
 
-$$\max_{\pi} E[U(X_T)]$$
+$$\max_{\pi} \mathbb{E} [\log(X_T)].$$
+At first glance, this seems rather messy and unlikely to admit an analytical solution. What can we do to solve such a problem?
 
-This can be done using neural networks as follows. 
+One simple technique is to solve the stochastic optimal control problem with neural networks. Essentially, we take the control $\pi_t$ to be a neural network which inputs the known information at time $t$ and outputs a proposed portfolio allocation to the stock fund. The loss function is then taken to be a numerical estimate of $-\mathbb{E} [\log(X_T)]$ which is used to train the neural network.
 
-First we assume that we are looking for closed loop feedback form controls that is $\pi_t = \pi(D_t,y_t,X_t,t)$. In other words, we decide our portfolio allocation based on the current state of our wealth, the dividend, and dividend yield, and the current time. Logically, we should expect to see that in reality $\pi_t = \pi(t,y_t)$. That is the only relevant information to decide the portfolio allocation should be the current time $t$ (because the model ends at time $T$) and the current dividend yield $y_t$ as we decide whether we think stocks are expensive or not, as well as how important that is to the portfolio allocation. Since we are calculating the expected value of the $\log(\cdot)$, a myopic utility function, it will turn out the true optimal portfolio does not depend on time $t$, but only dividend yield $y_t$. However, for our numerical approach, this is not necessary and we can pretend we did not know any better.
+First, we assume that we are looking for closed loop feedback form controls that is $\pi_t = \pi(D_t,y_t,X_t,t)$. In other words, we decide our portfolio allocation based on the current state of our wealth, the dividend, and dividend yield, and the current time. Logically, we should expect to see that in reality $\pi_t = \pi(t,y_t)$. That is the only relevant information to decide the portfolio allocation should be the current time $t$ (because the model ends at time $T$) and the current dividend yield $y_t$ as we decide whether we think stocks are expensive or not, as well as how important that is to the portfolio allocation. Since we are calculating the expected value of the $\log(\cdot)$, a myopic utility function, it will turn out the true optimal portfolio does not depend on time $t$, but only dividend yield $y_t$. However, for our numerical approach, this is not necessary and we can pretend we did not know any better.
 
 Assuming that these are the only factors that matter, let us look for the optimal control $\pi_t = \pi(t,y_t)$. We approximate the optimal control by looking for the optimal control in a class of neural networks.
 
@@ -145,23 +157,32 @@ class Model(nn.Module):
             nn.Linear(64, 64), 
             nn.Sigmoid(),
             nn.Linear(64, 1), 
-            nn.Sigmoid() #bounds alloc between 0% and 300% (see final output) as to not short or get too leveraged. This makes simulations / training run smoothly.           
+            nn.Sigmoid()          
             )
     def forward(self,z):
-        return 3*self.net(z)
+        return 3*self.net(z) #bounds alloc between 0% and 300% (see final output) as to not short or get too leveraged. This makes simulations / training run smoothly.  
     
 pi_NN = Model()
 ```
 
-With our neural network portfolio control $\pi_{NN}(t,y_t;\theta)$ defined, let us simulate the dynamics of the wealth process under this choice of portfolio allocation. We will numerically simulate:
+We note that we are actually working with a control that naturally incorporates a leveraged constraint. This could be perceived as a mandate or just a natural risk control due to uncertainty of the model. Simply put, this portfolio has a leveraged constraint of $300%$ as well as a long-only requirement. Therefore, the resulting trained portfolio may not be close to Kelly optimal for the original model, but it will be approximately Kelly optimal given the leverage constraints.
+
+The reason for the leveraged constraint is two-fold: 1). it is a natural requirement from a risk-management perspective. 2). it helps the numerical solutions to be well behaved during training.
+
+From a similar perspective, let us make a critical adjustment to the earnings yield model. The problem with the OU model $dy_t  = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t$ is that $y_t$ can be 0 and even go negative. This would mean that our stock model  $S_t = D_t/y_t$ has issues. To combat this, let's assume an absolute bound on earnings yield. In our model, we will make the maximum PE ratio of the market portfolio to be $200$. This means the earnings yield does not go below $0.5\%$. The new model for $y_t$ will be given by 
+
+With our neural network portfolio control $\pi_{NN}(t,y_t;\theta)$ defined, let us simulate the dynamics of the wealth process under this choice of portfolio allocation. We will numerically simulate the modified dynamics:
 
 \begin{align}
 dD_t & = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
-dy_t & = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
+dy_t & = \left(-\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\right)\mathbf{1}_{y_t + dy_t \geq 0.5\%} + (0.5\% - y_t)\mathbf{1}_{y_t + dy_t < 0.5\%} \\
 dX_t & = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t}\bigg)\\
 \end{align}
 
-$$\max_{\pi} E[\log(X_T)].$$
+
+and approximate the below maximization:
+
+$$\max_{\pi_{NN} : \  0 \leq \pi_{NN}(t,y_t) \leq 300\% \ \forall t} E[\log(X_T)].$$
 
 Here, the maximum is with respect to the neural networks in our hypothesis class. That is we are finding the neural network parameters $\theta$ corresponding to a strategy that is close to Kelly optimal (subject to our conditions). We will optimize $\theta$ by usual gradient descent based training. In our case, we will use the Adam optimization.
 
@@ -174,18 +195,15 @@ import matplotlib.pyplot as plt
 T = 20 #Choice of final time for ODE.
 N_steps = 100 #Number of time discretizations of ODE.
 N_sim = 2**10 #number of simulations to do in calculating expected log wealth.
-N_epochs = 5
+N_epochs = 5000
 dt = T/N_steps #size of dt for euler scheme
 
 #parameters
-#Recallebrate y_eq etc because I dont think it was taken from cont compounded yields
-#mu = .01053 #calibrated from real earnings data
-mu = .01
-sigma_D = .1295 #calibrated from real earnings data
-theta = .126 #calibrated from 1/PE 1860-1990
-sigma_y = .01288 #calibrated from 1/PE 1860-1990
-#y_eq = 0.0783 #calibrated from 1/PE 1860-1990
-y_eq = 0.075
+mu = .01053 #calibrated from real earnings data 1860-1990
+sigma_D = .1295 #calibrated from real earnings data 1860-1990
+theta = .126 #calibrated from earnings yield data 1860-1990
+sigma_y = .01288 #calibrated from earnings yield data 1860-1990
+y_eq = 0.0783 #calibrated from earnings yield data 1860-1990
 opt = torch.optim.Adam(pi_NN.parameters(), lr=.001)
 
 
@@ -202,15 +220,14 @@ for n in range(N_epochs):
     t = np.empty(N_steps+1,'O')
     pi_val = np.empty(N_steps,'O')
 
-    X[0] = 1*torch.ones(N_sim).unsqueeze(1) #initial condition represents X(0) = 1. Let's just start with $1
+    X[0] = 1*torch.ones(N_sim).unsqueeze(1) #initial condition represents X(0) = 1. Let's just start with units of 1.
     y[0] = (.025*torch.randn(N_sim)+.07).unsqueeze(1).clamp_min(0.005)
     D[0] = torch.ones(N_sim).unsqueeze(1)
 
     for i in range(0,N_steps):
         t[i] = i*dt*torch.ones(N_sim).unsqueeze(1) #Now, t[i] is the usual time given i steps but stored as a tensor. t is a numpy array of these 1d tensors.
 
-        ty = torch.cat((t[i],y[i]),1) #this is (t,y) but as a torch tesnor. We concatenated to tensors into a new one.
-        #ty = torch.cat((t[i],y[i],D[i],X[i]),1)
+        ty = torch.cat((t[i],y[i]),1) #this is (t,y) but as a torch tensor. We concatenated to tensors into a new one.
         
         pi_val[i] = pi_NN(ty) #we get our current portfolio alloc given this y
 
@@ -221,7 +238,7 @@ for n in range(N_epochs):
         X[i+1]  = X[i] + pi_val[i]*X[i]*(y[i]*dt + (D[i+1]  - D[i])/D[i] + (1/y[i+1]  - 1/y[i])*y[i])
         X[i+1] = X[i+1].clamp_min(0) #ReLU so that if X is negative it gets replaced by 0
         
-    Loss = - sum(torch.log(X[-1]+2**(-52)))/N_sim 
+    Loss = - sum(torch.log(X[-1]+2**(-52)))/N_sim #since 0 wealth is possible, modified utility so it is never undefined.
     Loss.backward()
     opt.step()
     opt.zero_grad()
@@ -236,9 +253,9 @@ ax.set_title('Training Loss Over Time')
 ax.set_xlabel('Epoch')
 ax.set_ylabel('Loss')
 ax.legend()
-plt.show()
+plt.show();
 ```
-We note that simulating portfolios has one problem. Although we have defined our portfolio to be one of finite leverage as our neural network output is not allowed to employ over $300\%$ alloaction to the risky asset, it is still possible that a blow up occurs. To combat this, we employ 1. an adjustment to the earnings yield process that makes it impossible for the stock market to trade above 200x earnings (this will be incorporated in optimal portfolio strategies) 2. an adjustment to wealth such that if the wealth were to go negative, it will remain at $0$ for all time. This will make the log undefined so we have to add a very small amount $2^{-52}$ to the loss function so that the log-wealth is always defined even for the trainings which cause wealth to go to $0$. 
+Despite employing a finite leverage constraint and a constraint on multiples to be below 200x earnings, the discrete nature of the problem makes it possible that wealth can go negative. In this case, we define the dynamics to be such that if wealth ever goes negative, it is assumed to be $0$ for all time. However, this will make the log undefined so we have to add a very small amount to the loss function so that the log-wealth is always defined even for the training simulations which cause wealth to go to $0$. 
 
 With our trained network, we can now see what the Kelly optimal allocation behaves on some generated data. Keep in mind our adjustments to the dynamics mean that this will not exactly be Kelly for our first proposed model, but a slightly altered model.
 
@@ -246,17 +263,11 @@ With our trained network, we can now see what the Kelly optimal allocation behav
 import matplotlib.ticker as mtick
 
 with torch.no_grad():
-    # Set the number of seeds to plot
     num_seeds = 3
-
-    # Set the color map to use for the lines
     colormap = plt.cm.viridis
-            
-    fig, ax = plt.subplots(2, 2, figsize=(9.5, 5.5))
+    fig, ax = plt.subplots(2, 2, figsize=(8.3,5.5))
 
-    # Loop over the seeds
     for seed in range(num_seeds):
-        # Generate a color for the current seed
         color = colormap(seed / num_seeds)
         t = np.linspace(0, T, N_steps+1)
 
@@ -291,14 +302,14 @@ with torch.no_grad():
         ax[1, 1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     for a in ax.flat:
-        a.set_xlabel("Time (years)")  # Set x-label to 'Time' for all subplots
+        a.set_xlabel("Time (years)")
     
-    plt.subplots_adjust(hspace=.5)
-    plt.legend([])  # Remove the legend
-    plt.show()
+    plt.subplots_adjust(hspace=0.7, wspace=0.15)
+    plt.tight_layout()
+    plt.show();
 ```
 
-We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is inutitive especially given the model dynamics which models in mean reversion of PE ratios.
+We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is intuitive given the model dynamics which models in mean reversion of PE ratios.
 
 Let's see what the neural network optimal control decides to allocate to equities for a given market multiple. We run this experiment in 3 stages of time. At year 0, at year 5, at year 10.
 
@@ -313,34 +324,35 @@ with torch.no_grad():
         ty = torch.cat((t,y),1)
         pi.append(pi_NN(ty))
 
-    # Set the number of seeds to plot
+
     num_seeds = 5
 
-    # Set the color map to use for the lines
+
     colormap = plt.cm.viridis
+    #plt.figure(1);
 
-    plt.figure(1)
-
-    # Loop over the seeds
     for seed in [0,5,10]:
-        # Generate a color for the current seed
         color = colormap(seed / 10)
-        plt.plot(1/y,pi[int(seed/5)],color=color, label='Year {}'.format(seed))
+        plt.plot(1/y,pi[int(seed/5)],color=color, label='Year {}'.format(seed));
 
-    plt.title('Stock index allocation for given valuation')
-    plt.xlabel('PE ratio')
-    plt.ylabel('Allocation')
-    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    plt.legend()
+    plt.title('Stock index allocation for given valuation');
+    plt.xlabel('PE ratio');
+    plt.ylabel('Allocation');
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0));
+    plt.legend();
 ```
 
-Interestingly, we see that the allocation to equities does not depend on time, only PE, as all the curves overlap. Of course we see some differences in the curves, but this because we are approximating the true Kelly optimal with neural networks! Actually, it turns out we can derive the analytical solution for Kelly Optimal in this case.
+Interestingly, we see that the allocation to equities does not depend on time, only PE, as all the curves overlap. This could have been predicted given the myopic property of log utility.
+
+This is a tad bit useful but itself suffers. Keep in mind that the model is not actually realistic. This is a toy problem. Whether this helps an allocator would depend on how true such a model is in reality. 
+
+Again, the goal here is to illustrate a method for portfolio optimization given a general model. However, how did we know the model actually succeed in finding the actual optimal portfolio? One nice thing about this test problem is that it admits an analytical solution for the Kelly optimal portfolio so we can test whether or not our training was effective!
+
 
 # Analytical Solution
-We now present the analytical solution to compare with our trained neural network.
+We now present the analytical solution to compare with our trained neural network solution. This allows us to check whether this method effectively found the Kelly optimal portfolio for this given model.
 
-We must solve:
-
+Recall the optimization problem is:
 
 \begin{align}
 dD_t & = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
@@ -350,14 +362,12 @@ dX_t & = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \bigg
 
 $$\arg \max_{\pi} E[\log(X_T)].$$
 
-We are looking for a Markovian control $\pi_t = \pi(t,D_t,y_t,X_t)$, but we expect the solution to only depend on $y_t$ for reasons addressed earlier.
-
 We proceed by considering $\log(X_t)$. With Ito's lemma we have that $d \log(X_t) = \frac{dX_t}{X_t} - \frac{1}{2}\Big( \frac{dX_t}{X_t} \Big)^2$, which gives:
 
 $$d \log(X_t) = \pi_t \bigg(y_tdt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \bigg) - \frac{1}{2} \pi_t^2 \bigg( \Big(\frac{dD_t}{D_t} \Big)^2 + \Big(  \frac{d(1/y_t)}{1/y_t} \Big)^2 \bigg)$$
 where we have simplified according to $dW^DdW^y = 0$. 
 
-Computing some of these terms:
+Computing the $\frac{d(1/y_t)}{1/y_t}$ term:
 
 $$\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^y_t$$
 
@@ -376,9 +386,12 @@ $$\pi^*_t = \frac{y_t + \mu_D + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y
 
 This can be simplified. However, in this form, we see that the top represents the components of return (return due to yield + dividend growth + mean reversion), while the denominator represents the components of variance (dividend variance + market multiple variance). 
 
-As expected, we see that $\pi^*_t = \pi^* (y_t)$. That is the optimal portolio allocation is decided purely based on the current earnings yield.
+As expected, we see that $\pi^*_t = \pi^* (y_t)$. That is the optimal portolio allocation is decided purely based on the current earnings yield. The above analytical control does not have a leverage constraint. One would have to be careful, but given the myopic nature of the optimization and the increasing nature of the quadratic function in terms of $\pi$ up until the optimal point, we see that the optimal control with the leveraged constraint is:
 
-Keep in mind the yield here $y_t$ is a continuously compounded yield. So saying $y_t = 0.1$ for instance actually corresponds to the annualized rate $e^{y_t} - 1 = 0.105$
+$$\pi^*_t = \min\left( \frac{y_t + \mu_D + \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2}}{\sigma_D^2 +   \frac{\sigma_y^2}{y_t^2} }, \  300\% \right).$$
+Lastly, the actual model problem enforced a condition  to make $y_t$ no lower than $0.5\%$. This was not included in our analytical portfolio optimization above hence there may be some differences here between the true optimal and our trained optimal as they are trained on different dynamics.
+
+That being said, we would like to know how much does our trained neural network portfolio strategy coincide with the true Kelly optimal portfolio. If it does agree, this provides evidence that neural networks can be used to solve similar problems. The first step would be to construct a more realistic model! Let's check how they compare:
 
 ```{python}
 #Plotting:
@@ -392,41 +405,44 @@ def pi_true(M):
 def pi_true_adjusted(M):
     return np.minimum(pi_true(M),3.0*np.ones(len(M)))
 
-# Set the number of seeds to plot
+
 num_seeds = 5
 
-# Set the color map to use for the lines
 colormap = plt.cm.viridis
 
 
-# Loop over the seeds
 
 t0 = torch.zeros(21).unsqueeze(1) #Choose model for year 0. We showed it didn't matter what year.
 y = torch.linspace(.02,.2,21).unsqueeze(1)
 ty = torch.cat((t0,y),1)
 y_NN = pi_NN(ty)
 y_NN = y_NN.detach()
-plt.figure(2)
+#plt.figure(2);
 y = np.linspace(.02,.2,21)
-plt.plot(1/y,pi_true_adjusted(1/y),'b')
-plt.plot(1/y,y_NN,'g')
-plt.yticks([0, .5, 1, 1.5, 2,2.5,3], ['0%', '50%', '100%', '150%', '200%', '250%','300%'])
-plt.title('Stock index allocation for given valuation')
-plt.xlabel('PE ratio')
-plt.ylabel('Allocation')
+plt.plot(1/y,pi_true_adjusted(1/y),'b');
+plt.plot(1/y,y_NN,'g');
+plt.yticks([0, .5, 1, 1.5, 2,2.5,3], ['0%', '50%', '100%', '150%', '200%', '250%','300%']);
+plt.title('Stock index allocation for given valuation');
+plt.xlabel('PE ratio');
+plt.ylabel('Allocation');
 ```
 
-The cause for differences: in our model, we did not allow the PE ratio to go above 200. We also naturually capped the leverage of the NN based control to be $300\%$ whereas here we are rounding the true Kelly control to be maxed at $300\%$ for comparison purposes. 
+This shows that the training did indeed work! The trained neural network portfolio matches the true Kelly portfolio. Of course there are differences due to not allowing the PE ratio to go above 200 in our simulations which was not an assumption in the derivation of the true Kelly portfolio.
 
-Also we see the bizarre relation where the true Kelly control will start going up at a large enough PE! This is due to a modelling error where we take $y$ to be given by an OU. The problem is that under the OU model, if we isolate the "change in multiple" component to stock price return, $\frac{d(1/y_t)}{1/y_t}$, we see that there are problems when $y_t$ is near $0$. When $y_t$ is near $0$, the change in multiple's contribution to portfolio return is to have an infinite mean return and infinite variance. This is not true in reality.
+Also we see the bizarre relation where the true Kelly control will start going up at a large enough PE! This is due to an unrealistic feature of our model where we take $y$ to be given by an OU process. The problem is that under the OU model, if we isolate the "change in multiple" component to stock price return, $\frac{d(1/y_t)}{1/y_t}$, we see that there are problems when $y_t$ is near $0$. 
 
 $$\frac{d(1/y_t)}{1/y_t} = \Big( \frac{1}{y_t}\theta(y_t-y_{eq}) + \frac{\sigma_y^2}{y_t^2} \Big)dt - \frac{\sigma_y}{y_t}dW^y_t$$
+When $y_t$ is near $0$, (even near our imposed bound of $0.5\%$), the volatility and mean return due to the change in multiple component both explode. I do not believe this feature would be true in reality. One possible fix would be to define a multiple process $M_t$ such that:
 
-Here we see the mean return and volatility of multiple compression / expansion go to infinity as $y_t$ goes to $0$. This causes a model issue that we believe wouldn't exist in reality. In our model, we actually make PEs max out at 200, which makes the NN allocation control seem more believable (because it was trained on perhaps a slightly more believable model) than the true Kelly. 
+$dM_t = -\theta_M(M_t - M_{eq})dt + \sigma_M M_t dW^M_t.$
 
-# Backtests
+Then in regards to the model where $S_t = D_t M_t$, one has that the stock price variance is simply $\sigma_D^2 + \sigma_M^2$ and thus the stock has constant volatility for all valuations while the mean return would vary depending on valuations due to the component of mean return due to mean-reversion of multiples.
 
-We now perform a backtest of the model.
+# An unrealistic test for the SP500
+
+Let's see how the model does on actual data. Since real interest rates are assumed to be $0$ in our model, we will assume that there is no real borrowing cost from a hypothetical lender. This should be included in the model but we will have to train an allocation rule that takes into account interest rates as well as a realistic joint model for interest rates, earnings yield, and earnings that is fitted from the data. So be aware that these are hypothetical experiments given the reality of stock returns but the lie of $0$ real rates.
+
+
 
 ```{python}
 import pandas as pd
@@ -489,20 +505,22 @@ with torch.no_grad():
         
 ```
 
+For now, let us do an unfair comparison of the Kelly PE based timing strategy to a 100% SP500 portfolio. This comparison is unfair because PE based timing strategy has net leverage over time as well as ignores borrow costs.
+
 ```{python}
 
 with torch.no_grad():
-    fig, ax = plt.subplots(2, 2, figsize=(9.5, 5.5))
+    fig, ax = plt.subplots(2, 2, figsize=(8.3,5.5));
 
     t = np.linspace(2021-T,2021,N_steps)
     
     x_tens = torch.Tensor(N_steps)
-    torch.stack(list(X),out=x_tens)
+    torch.stack(list(X),out=x_tens);
     x_plt = x_tens.numpy()
     x_plt = x_plt[:,0,0]
     
     pi_tens = torch.Tensor(N_steps-1)
-    torch.stack(list(pi_val[0:-1]),out=pi_tens)
+    torch.stack(list(pi_val[0:-1]),out=pi_tens);
     pi_plt = pi_tens.numpy()
     pi_plt = pi_plt[:,0,0]
 
@@ -513,30 +531,33 @@ with torch.no_grad():
     index_start = int((startyear-1871)/dt)
     
     
-    ax[0,0].set_title('Backtest of optimal portfolio')
+    ax[0,0].set_title('Kelly Strategy (yellow) vs 100% Stock (blue)');
     ax[0,0].plot(t[index_start:],x_plt[index_start:]/x_plt[index_start],'y',
-                 t[index_start:],TR[index_start:]/TR[index_start],'b')
-    ax[0,0].set_yscale("log")  
+                 t[index_start:],TR[index_start:]/TR[index_start],'b');
+    ax[0,0].set_yscale("log");
     
-    ax[0,1].set_title('Real Earnings of Index')
-    ax[0,1].plot(t[index_start:],IndexRealE[index_start:],'g')
-    ax[0,1].set_yscale("log")  
+    ax[0,1].set_title('SP500 Real Earnings');
+    ax[0,1].plot(t[index_start:],IndexRealE[index_start:],'g');
+    ax[0,1].set_yscale("log");
     
     PE = np.array(PE)    
-    ax[1,1].set_title('PE ratio')
-    ax[1,1].plot(t[index_start:],PE[index_start:],'r')
+    ax[1,1].set_title('SP500 PE ratio');
+    ax[1,1].plot(t[index_start:],PE[index_start:],'r');
 
-    plt.figure(4)
-    ax[1,0].set_title('Stock Allocation')
-    ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'m')
+    #plt.figure(4);
+    ax[1,0].set_title('Kelly Stock Allocation');
+    ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'m');
     
-    plt.subplots_adjust(hspace=.5)
-    plt.show()
+    plt.subplots_adjust(hspace=0.7, wspace=0.15);
+    plt.tight_layout();
+    plt.show();
 ```
+The key in our model was that earnings was Markov. This essentially means that current earnings is representative of future earnings. In reality you will have periods where earnings are overstated and understated. For example, think of 2009 earnings being nearly $0$ due to the write-downs of assets taken by various companies. These write-downs were a one-off expense and thus earnings in 2009 substantially understated true earnings power of the SP500.
 
+Since the model assumes earnings is earnings power, one might test the portfolio allocation rule against a cyclically adjusted measure of earnings such as CAPE. We compare the earnings rule tested on CAPE as well as PE for this reason and compare the wealth processes of Kelly portfolio using CAPE to estimate yield vs Kelly portfolio using PE to estimate yield.
 ```{python}
 with torch.no_grad():
-    fig, ax = plt.subplots(2, 2, figsize=(10, 5))
+    fig, ax = plt.subplots(2, 2, figsize=(8.3,5.5));
 
     t = np.linspace(2021-T,2021,N_steps)
 
@@ -555,34 +576,36 @@ with torch.no_grad():
 
     TR = np.array(TR)
     TR = TR/TR[0]
-    ax[0,0].set_title('Backtest of PE timing (yellow) vs CAPE timing (cyan)')
+    ax[0,0].set_title('PE timing (yellow) vs CAPE timing (cyan)')
     ax[0,0].plot(t[index_start:],x_plt[index_start:]/x_plt[index_start],'y',
-                 t[index_start:],X_PE10_plt[index_start:]/X_PE10_plt[index_start],'c')
-    ax[0,0].set_yscale("log")  
+                 t[index_start:],X_PE10_plt[index_start:]/X_PE10_plt[index_start],'c');
+    ax[0,0].set_yscale("log");
     
-    ax[0,1].set_title('Real Earnings of Index')
-    ax[0,1].plot(t[index_start:],IndexRealE[index_start:],'g')
-    ax[0,1].set_yscale("log")  
+    ax[0,1].set_title('SP500 Real Earnings');
+    ax[0,1].plot(t[index_start:],IndexRealE[index_start:],'g');
+    ax[0,1].set_yscale("log") ; 
     
     PE10 = np.array(PE10)    
-    ax[1,1].set_title('PE10 ratio')
-    ax[1,1].plot(t[index_start:],PE10[index_start:],'c')
+    ax[1,1].set_title('SP500 CAPE ratio');
+    ax[1,1].plot(t[index_start:],PE10[index_start:],'c');
 
-    plt.figure(4)
-    ax[1,0].set_title('Stock Allocation')
-    ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'y',t[index_start:-1],piPE10_plt[index_start:],'c')
+    #plt.figure(4);
+    ax[1,0].set_title('Kelly Stock Allocations');
+    ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'y',t[index_start:-1],piPE10_plt[index_start:],'c');
     
-    plt.subplots_adjust(hspace=.5)
-    plt.show()
+    plt.subplots_adjust(hspace=0.7, wspace=0.15);
+    plt.tight_layout();
+    plt.show();
 
 ```
 
 ```{python}
-plt.figure(1,(9.5,5))
-plt.title('Backtest of PE timing (yellow) vs CAPE timing (cyan) and 2x leveraged (blue)')
+plt.figure(1,(8,5.5));
+plt.title('Wealth processes under PE timing (yellow) vs CAPE timing (cyan) and 2x leveraged (blue)');
 plt.plot(t[index_start:],x_plt[index_start:]/x_plt[index_start],'y',
              t[index_start:],X_PE10_plt[index_start:]/X_PE10_plt[index_start],'c',
-              t[index_start:],TR2[index_start:]/TR2[index_start],'b')
-plt.yscale("log")
-plt.show()
+              t[index_start:],TR2[index_start:]/TR2[index_start],'b');
+plt.yscale("log");
+plt.show();
 ```
+

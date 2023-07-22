@@ -2,11 +2,13 @@
 title: " Log-Optimal And Risk Neutral Valuation -- The Basics"
 ---
 
-I am assuming the reader is well-versed in stochastic calculus and knows the foundational results on arbitrage pricing of contingent claims. Those that are familiar are used to the risk-neutral valuation of an option -- that is the options price is just the expected value of its discounted payoff under the risk neutral measure. What I aim to do is illustrate a really nice result that allows one to price the option under the true physical measure. Rather than doing this with a choice of stochastic discount factor, we do it with a choice of portfolio value. It turns out that the log-optimal portfolio, the portfolio that maximizes log-utility, is the unique portfolio such that option pricing is just the expected value of the payout under the true physical measure with the caveat that the portfolio is not measured in dollars, or in units of bank account, but instead in units of the log-optimal portfolio.
+I am assuming the reader is well-versed in stochastic calculus and knows the foundational results on arbitrage pricing of contingent claims. Those that are familiar are used to the risk-neutral valuation of an option -- that is the options price is just the expected value of its discounted payoff under the risk neutral measure. What I aim to do is illustrate a really nice result that allows one to price the option under the true physical measure. Rather than doing this with the given stochastic discount factor, we do it with a choice of numeraire induced by a portfolio. It turns out that the log-optimal portfolio is the unique portfolio such that the price of a claim is simply the expected value (under the physical measure) of the payout priced in units of log-optimal portfolio value! In other words, the growth of the log-optimal portfolio appropriately discounts for time and risk such that pricing can be done under $\mathbb{P}$!
 
-This is just the beginning. What I am to do is show that this result holds in a very general setting. At first, we will show that this holds for the typical Black-Scholes-Merton model of the markets. Then we will show this result holds for all attainable claims for a general class of market models (which includes models such as stochastic volatility and much more). This is not in contradiction to the traditional results that shows infinitely many EMM for incomplete markets as the log-optimal numeraire induced pricing corresponds to one of the infinite EMM in this case. However, in our last section, we go one step further and price claims that are unattainable. You might say this is impossible! Indeed from the perspective of arbitrage pricing, it is impossible, as one cannot hedge (by definition) and unattainable claim. However, from the perspective of expected utility theory, this does not mean that a given person would not have a desire to allocate to a given claim given the right entry price. In fact, we will show that if one defines the price of a claim (for a given person) such that they are indifferent to owning a small amount of claim at that price, then we have the result that the price of the option is still the expected payout (under the physical measure) of the option in units of the log-optimal portfolio.
+In this post, we will show that this holds for the typical Black-Scholes-Merton model of the market. Then we will show this result holds for all attainable claims for a general class of market models in [part 2 of this blog topic](./logoptimal2.qmd). This is not in contradiction to the traditional results that shows infinitely many EMM for incomplete markets as the log-optimal numeraire induced pricing corresponds to one of the infinite EMM in this case. 
 
-I will say this is not anything new, but finding these results can be very difficult as there is some, but not much said on this topic especially as one adds more and more generality. My derivations are that of my own and are meant to be simple. This was created by my own exploration and rediscovery of these results and I am presenting my own past excursion in deriving them not knowing they existed in the first place.
+While finding a consistent way to price attainable claims under $\mathbb{P}$ using the log-optimal portfolio as numeraire is indeed beautiful, we might say "so what? We already know how to price attainable claims!" Well it gets much better. In [part 3 of this blog topic](./logoptimal3.qmd) we go one step further and price claims that are unattainable. You might say this is impossible! Indeed from the perspective of arbitrage pricing, it is impossible, as by definition one cannot hedge an unattainable claim. However, from the perspective of expected utility theory, this does not mean that a given person would not have a desire to allocate to a given claim given the right price. In fact, we will show that if one defines the price of a claim for a given person such that this person is indifferent to owning a small amount of claim at that price, then something spectacular happens: the price of the claim turns out to still be the expected payout (under $\mathbb{P}$) of the claim in units of log-optimal portfolio for all investors even with different (CRRA) risk preferences!
+
+I will say all of this turns out to not be anything new, but not much is said on this topic especially as one adds more and more generality. My derivations are that of my own and are meant to be simple. This was created by my own exploration and personal discovery of these results, and I am presenting my own past excursion in deriving them not knowing they existed in the first place.
 
 
 # Review
@@ -30,15 +32,15 @@ $$
 \frac{dV^\pi_t}{V^\pi_t} = [r+\pi_t (\mu-r)] dt + \pi_t \sigma dW_t.
 $$
 
-The risk neutral pricing formula can be derived in many ways. We will recall the derivation in the following argument:
+The risk neutral pricing formula can be derived in many ways. One derivation is from the following argument:
 
 -   Find a measure $\mathbb{Q}$ such that $(\frac{S_t}{B_t})$ is a $\mathbb{Q}$ - martingale.
 
--   Since both $(\frac{S_t}{B_t})$ and $(\frac{B_t}{B_t} = 1)$ are $\mathbb{Q}$ - martingale, it is easy to show that any portfolio $\pi = (\pi_t)$ has a corresponding wealth process $(V^\pi_t)$ that is also a $\mathbb{Q}$ - martingale.
+-   Since both $(\frac{S_t}{B_t})$ and $(\frac{B_t}{B_t} = 1)$ are $\mathbb{Q}$ - martingale, it is easy to show that any portfolio $\pi = (\pi_t)$ has a corresponding wealth process $V^\pi$ such that $(V^\pi_t/B_t)$ is also a $\mathbb{Q}$ - martingale.
 
 -   Therefore $\mathbb{E}^\mathbb{Q} \left[ \frac{V^\pi_T}{B_T} \Big| \mathcal{F}_t \right] = \frac{V^\pi_t}{B_t}$ for all portfolios $\pi$.
 
--   Let $X$ be a time $T$ claim i.e. $X \in \mathcal{F_T}$ is paid out at time $T$. Then (since in this case every claim is attainable), there exists $\pi$ and $V^\pi_0$ such that $V^\pi_T = X$ a.s.. Therefore we get the risk neutral pricing:
+-   Let $X$ be a time $T$ claim i.e. $X \in \mathcal{F}_t$ is paid out at time $T$. Then (since in this case every claim is attainable), there exists $\pi$ and $V^\pi_0$ such that $V^\pi_T = X$ almost surely. Therefore, from the replication and the $\mathbb{Q}$-martingality of all discounted portfolios, we get the risk neutral pricing formula:
 
 $$\Pi(t;X) =\mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right]$$
 
@@ -46,7 +48,7 @@ where the function $\Pi(t;\cdot)$ gives the price at time $t$.
 
 For the first point, the measure $\mathbb{Q}$ can be found by finding the measure such that $W^\mathbb{Q}_t := W_t + \frac{\mu-r}{\sigma}t$ is a Brownian motion. Such a measure is guaranteed by the Girsanov theorem by defining $\mathbb{Q}$ by its Radon-Nikodym derivative w.r.t $\mathbb{P}$
 
-$$\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\frac{1}{2}\lambda^2(T-t) - \lambda (W_T-W_t)\right) \quad \mathrm{on} \ \mathcal{F_t},$$ where $\lambda = \frac{\mu-r}{\sigma}$.
+$$\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\frac{1}{2}\lambda^2(T-t) - \lambda (W_T-W_t)\right) \quad \mathrm{on} \ \mathcal{F}_t,$$ where $\lambda = \frac{\mu-r}{\sigma}$.
 
 For the second point, it is simple to show $(V^\pi_t)$ that is also a $\mathbb{Q}$ - martingale just by examining that $\frac{dV^\pi_t}{V^\pi_t} = \pi_t \frac{dS_t}{S_t} + (1-\pi_t) \frac{dB_t}{B_t}$. Thus since $B$ and $S$ are $\mathbb{Q}$-martingales, hence $\frac{dS_t}{S_t}$ and $\frac{dB_t}{B_t}$ are driftless (in terms of $\mathbb{Q}$ dynamics) and hence so is $\frac{dV^\pi_t}{V^\pi_t}$. Of course you might say it is a local martingale, but if we restrict $\pi$ to a reasonable set of controls we will get that it is a martingale. We aren't too concerned about these details here for this intuitive example.
 
@@ -58,7 +60,7 @@ While the pricing formula under the risk neutral measure is both extremely usefu
 
 This can be easily done as
 
-$$\mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right] = \mathbb{E}^\mathbb{P}\left[ \frac{d\mathbb{Q}}{d\mathbb{P}} \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right].$$ Next, since $\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\lambda(T-t) - \frac{1}{2} \lambda^2 (W_T-W_t)\right)$ on $\mathcal{F_t}$, and also using $B_T/B_t = \exp(r(T-t))$, we get
+$$\mathbb{E}^\mathbb{Q} \left[ \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right] = \mathbb{E}^\mathbb{P}\left[ \frac{d\mathbb{Q}}{d\mathbb{P}} \frac{X}{B_T/B_t} \Big| \mathcal{F}_t \right].$$ Next, since $\frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\lambda(T-t) - \frac{1}{2} \lambda^2 (W_T-W_t)\right)$ on $\mathcal{F}_t$, and also using $B_T/B_t = \exp(r(T-t))$, we get
 
 $$\Pi(t;X) =\mathbb{E}^\mathbb{P} \left[ \frac{X}{e^{(r+\lambda)(T-t) + \frac{1}{2} \lambda^2 (W_T-W_t))}} \Bigg| \mathcal{F}_t \right],$$
 
@@ -66,7 +68,7 @@ which is the pricing under $\mathbb{P}$ adjusted with a new factor. What we have
 
 $$ \Pi(0;X) =\mathbb{E}^\mathbb{P} \left[ m_T X  \right], $$
 
-$$\Pi(t;X) =\mathbb{E}^\mathbb{P} \left[ \frac{m_T}{m_t} X  \Big| \mathcal{F_t} \right]. $$ 
+$$\Pi(t;X) =\mathbb{E}^\mathbb{P} \left[ \frac{m_T}{m_t} X  \Big| \mathcal{F}_t \right]. $$ 
 
 The interpretation is that the price of $X$ is its expected payout weighted by some appropriate kernel that accounts for both time and risk. Such a kernel is called the pricing kernel (or as we said earlier SDF).
 
@@ -170,6 +172,6 @@ Thus indeed we have that $\pi_t = \pi^*_t = \frac{\mu-r}{\sigma^2}$ is the log-o
 
 We have shown for this simple Black-Scholes model, that the option pricing for the time $T$ claim $X \in \mathcal{F}_T$ is given by
 
-$$ \frac{\Pi(t;X)}{V^\pi_t} =  \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\pi^*}_T} \Bigg| \mathcal{F}_t \right],$$ where $\pi^* = (\pi^*_t)_t$ is the log-optimal portfolio meaning that it maximizes over all portfolios, the quantity $\mathbb{E}[ \log(V^{\pi^*}_T)]$. This portfolio is also called the growth-optimal portfolio or Kelly optimal as it is the portfolio that satisfies the Kelly criterion. It has a number of wonderful properties, which can be covered later.
+$$ \frac{\Pi(t;X)}{V^{\pi^*}_t} =  \mathbb{E}^\mathbb{P} \left[ \frac{X}{V^{\pi^*}_T} \Bigg| \mathcal{F}_t \right],$$ where $\pi^* = (\pi^*_t)_t$ is the log-optimal portfolio meaning that it maximizes over all portfolios, the quantity $\mathbb{E}[ \log(V^{\pi^*}_T)]$. This portfolio is also called the growth-optimal portfolio or Kelly optimal as it is the portfolio that satisfies the Kelly criterion. It has a number of wonderful properties, which can be covered later.
 
 The interpretation of the above pricing is as follows: we have the remarkable relation that if the units of measurement were not currency, but instead of growth optimal portfolio value, then the price of an option is just its expected payout under the true measure $\mathbb{P}$! In essence, the right way to adjust for risk and time in considering the options price can be considered simply by having the correct unit of measurement (numeraire) which is the log-optimal portfolio. To understand why this is true, continue reading the other sections of this blog!

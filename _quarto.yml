@@ -12,7 +12,7 @@ website:
     - text: "Projects"
       menu:
       - text: "Kelly Optimality throughout Market Cycles"
-        file: kellyoptimalPEtiming.qmd
+        file: KellyOptimalMarketCycles.qmd
     - text: "Log Optimal Portfolio and Option Pricing"
       menu:
       - text: "Part 1"
@@ -25,7 +25,7 @@ website:
 
 format:
   html:
-    theme: minty
+    theme: flatly
     css: styles.css
     toc: true
     code-fold: true
