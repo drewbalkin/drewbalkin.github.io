@@ -9,10 +9,8 @@ website:
     left:
     - text: "Home"
       file: index.qmd
-    - text: "Projects"
-      menu:
-      - text: "Kelly Optimality throughout Market Cycles"
-        file: KellyOptimalMarketCycles.qmd
+    - text: "Valuation-Based Kelly Optimal Portfolios"
+      file: KellyOptimalMarketCycles.qmd
     - text: "Log Optimal Portfolio and Option Pricing"
       menu:
       - text: "Part 1"

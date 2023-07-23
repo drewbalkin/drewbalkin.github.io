@@ -120,17 +120,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projects" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
- <span class="menu-text">Projects</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-projects">    
-        <li>
-    <a class="dropdown-item" href="./KellyOptimalMarketCycles.html" rel="" target="">
- <span class="dropdown-text">Kelly Optimality throughout Market Cycles</span></a>
+  <li class="nav-item">
+    <a class="nav-link active" href="./KellyOptimalMarketCycles.html" rel="" target="" aria-current="page">
+ <span class="menu-text">Valuation-Based Kelly Optimal Portfolios</span></a>
   </li>  
-    </ul>
-  </li>
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-log-optimal-portfolio-and-option-pricing" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
  <span class="menu-text">Log Optimal Portfolio and Option Pricing</span>
@@ -177,7 +170,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#numerical-solution" id="toc-numerical-solution" class="nav-link" data-scroll-target="#numerical-solution">Numerical Solution</a></li>
   <li><a href="#analytical-solution" id="toc-analytical-solution" class="nav-link" data-scroll-target="#analytical-solution">Analytical Solution</a></li>
-  <li><a href="#an-unrealistic-test-for-the-sp500" id="toc-an-unrealistic-test-for-the-sp500" class="nav-link" data-scroll-target="#an-unrealistic-test-for-the-sp500">An unrealistic test for the SP500</a></li>
+  <li><a href="#an-unrealistic-test-for-the-sp500" id="toc-an-unrealistic-test-for-the-sp500" class="nav-link" data-scroll-target="#an-unrealistic-test-for-the-sp500">An unrealistic test for the SP500</a>
+  <ul class="collapse">
+  <li><a href="#pe-strategy-superior-vs-cape-not-so-fast" id="toc-pe-strategy-superior-vs-cape-not-so-fast" class="nav-link" data-scroll-target="#pe-strategy-superior-vs-cape-not-so-fast">PE Strategy Superior vs CAPE? Not so fast…</a></li>
+  </ul></li>
+  <li><a href="#sec-finalanalysis" id="toc-sec-finalanalysis" class="nav-link" data-scroll-target="#sec-finalanalysis">Final Analysis of Performance</a></li>
   </ul>
 </nav>
     </div>
@@ -203,9 +200,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1>Overview</h1>
-<p>This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by an Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically showcasing that neural networks can be used to solve similar problems of this form in the case when no analytical solutions exist.</p>
-<p>To make such a model useful, we will have to construct a more realistic model of how earnings yield / PE ratios drive future prices. The problem with this perspective is that the current earnings level is not the best predictor of future earnings. Because of this, PE ratios can appear artificially low or high as the PE ratio does not demonstrate the actual (probabalistic) future earnings power. However, the model we use assumes that earnings are Markovian in nature and hence valuation is completely understood in terms of the trailing PE ratio (as the distribution of future earnings depends only on the current earnings).</p>
-<p>However, we present the general idea for how one can a train long-term portfolio optimization model given some assumed market dynamics.</p>
+<p>This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by a modified Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically showcasing that neural networks can be used to solve similar problems of this form in the case when no analytical solutions exist.</p>
+<p>To make such a model useful, we will have to construct a more realistic model of valuation and impact on return. The main problem with this model is that earnings is given by a GBM which in particular means it is Markov. The problem with this perspective is that the current earnings level is not the best predictor of future earnings. Because of this, PE ratios can appear artificially low or high as the current earnings may not demonstrate the actual (probabilistic) future earnings power. For instance, in 2009 earnings were near <span class="math inline">\(0\)</span> but immediately recovered to levels near previous years. This would cause PE ratios to be overstated. However, the model we use assumes that earnings are Markovian in nature and hence valuation is completely understood in terms of the trailing PE ratio (as the distribution of future earnings depends only on the current earnings).</p>
+<p>The main purpose of this post, therefore, is to highlight a methodology for for how one can a train long-term portfolio optimization model given a model for market dynamics.</p>
 </section>
 <section id="model-derivation" class="level1">
 <h1>Model Derivation</h1>
@@ -219,7 +216,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The second component of return is that this probabilistic future stream of dividends changes over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.</p>
 <p>However, there is a third component to return. Even if the probability distribution of future dividends were not to change over a time interval <span class="math inline">\([t,t+dt]\)</span>, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends.</p>
 <p>In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth, and market multiple changes.</p>
-<p>Note that a company or stock index may not pay all excess profits or earnings, as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.</p>
+<p>Note that a company or stock index may not pay all excess profits or earnings as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.</p>
 <p>From now on, we will treat dividends as earnings. We assume that earnings as a whole are paid out to the investor as if it were a dividend. After all, the profit at time <span class="math inline">\(t\)</span> is distributed to shareholders one way or another whether it is dividends, buybacks, acquisitions, or reinvestment. It is dangerous to include all of these as “dividend” payments, however it will be simplifying assumption for our model.</p>
 <p>In this model, we will have a stock index whose profits (or dividends by our assumption) at time <span class="math inline">\(t\)</span> is given by the process <span class="math inline">\(D_t\)</span> where <span class="math inline">\(D_tdt\)</span> represents the total dividend payment in <span class="math inline">\([t,t+dt]\)</span> for owning <span class="math inline">\(1\)</span> unit of stock. This dividend process will be given by a geometric Brownian motion with mean <span class="math inline">\(\mu_D\)</span> and volatility <span class="math inline">\(\sigma_D\)</span>. Separately, there is a market multiple process <span class="math inline">\(M_t\)</span> which represents the amount the market is willing to pay for the stock given its current dividend. Simply, if <span class="math inline">\(S_t\)</span> is stock price at time <span class="math inline">\(t\)</span>, then <span class="math inline">\(D_t M_t = S_t\)</span>. To model the market multiple process, we model its inverse, the dividend yield process <span class="math inline">\(y_t = \frac{1}{M_t} = \frac{D_t}{S_t}\)</span> with an OU model, which is common for interest rates as it allows for mean reversion. This gives the model</p>
 <p><span class="math display">\[\begin{align}
@@ -272,7 +269,7 @@ dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_
 <p>Essentially, this means this portfolio strategy has corresponding wealth processes that almost surely long-term beats any other portfolio.</p>
 <p>This is indeed a nice property but it doesn’t mean that the Kelly strategy is the <em>right</em> strategy. For example, how long is long-term?</p>
 <p>To me, the idea of Kelly portfolios is not useful because it is <em>the</em> correct strategy (it definitely depends on each person!), but is a useful base-point for which investors can orient themselves around.</p>
-<p>Secondly, all these portfolio optimization methods have the problem that one needs to know the true distribution of future returns, and they are sensitive to perturbations of the underlying distribution.</p>
+<p>The second problem with Kelly portfolios and utility optimization in general is that it provides results that are subject to a great deal of model risk– the idea that the true distribution of future returns is different than the underlying model.</p>
 </section>
 </section>
 </section>
@@ -311,7 +308,7 @@ dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>pi_NN <span class="op">=</span> Model()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We note that we are actually working with a control that naturally incorporates a leveraged constraint. This could be perceived as a mandate or just a natural risk control due to uncertainty of the model. Simply put, this portfolio has a leveraged constraint of <span class="math inline">\(300%\)</span> as well as a long-only requirement. Therefore, the resulting trained portfolio may not be close to Kelly optimal for the original model, but it will be approximately Kelly optimal given the leverage constraints.</p>
+<p>We note that we are actually working with a control that naturally incorporates a leveraged constraint. This could be perceived as a mandate or just a natural risk control due to uncertainty of the model. Simply put, this portfolio has a leveraged constraint of 300% as well as a long-only requirement. Therefore, the resulting trained portfolio may not be close to Kelly optimal for the original model, but it will be approximately Kelly optimal given the leverage constraints.</p>
 <p>The reason for the leveraged constraint is two-fold: 1). it is a natural requirement from a risk-management perspective. 2). it helps the numerical solutions to be well behaved during training.</p>
 <p>From a similar perspective, let us make a critical adjustment to the earnings yield model. The problem with the OU model <span class="math inline">\(dy_t = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\)</span> is that <span class="math inline">\(y_t\)</span> can be 0 and even go negative. This would mean that our stock model <span class="math inline">\(S_t = D_t/y_t\)</span> has issues. To combat this, let’s assume an absolute bound on earnings yield. In our model, we will make the maximum PE ratio of the market portfolio to be <span class="math inline">\(200\)</span>. This means the earnings yield does not go below <span class="math inline">\(0.5\%\)</span>. The new model for <span class="math inline">\(y_t\)</span> will be given by</p>
 <p>With our neural network portfolio control <span class="math inline">\(\pi_{NN}(t,y_t;\theta)\)</span> defined, let us simulate the dynamics of the wealth process under this choice of portfolio allocation. We will numerically simulate the modified dynamics:</p>
@@ -448,7 +445,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="785" height="516"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="780" height="516"></p>
 </div>
 </div>
 <p>We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is intuitive given the model dynamics which models in mean reversion of PE ratios.</p>
@@ -651,7 +648,7 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Strategy (yellow) vs 100% Stock (blue)'</span>)<span class="op">;</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth: Kelly Strategy (yellow) vs 100% Stock (blue)'</span>)<span class="op">;</span></span>
 <span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:],x_plt[index_start:]<span class="op">/</span>x_plt[index_start],<span class="st">'y'</span>,</span>
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>                 t[index_start:],TR[index_start:]<span class="op">/</span>TR[index_start],<span class="st">'b'</span>)<span class="op">;</span></span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)<span class="op">;</span></span>
@@ -673,11 +670,11 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-8-output-1.png" width="784" height="517"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-8-output-1.png" width="785" height="517"></p>
 </div>
 </div>
 <p>The key in our model was that earnings was Markov. This essentially means that current earnings is representative of future earnings. In reality you will have periods where earnings are overstated and understated. For example, think of 2009 earnings being nearly <span class="math inline">\(0\)</span> due to the write-downs of assets taken by various companies. These write-downs were a one-off expense and thus earnings in 2009 substantially understated true earnings power of the SP500.</p>
-<p>Since the model assumes earnings is earnings power, one might test the portfolio allocation rule against a cyclically adjusted measure of earnings such as CAPE. We compare the earnings rule tested on CAPE as well as PE for this reason and compare the wealth processes of Kelly portfolio using CAPE to estimate yield vs Kelly portfolio using PE to estimate yield.</p>
+<p>Since the underlying model which trains the Kelly allocation rule assumes earnings is Markovian, one might test the portfolio allocation rule using earnings yield estimated from 1/CAPE rather than 1/PE. The reason being is that in real life, we believe PE may at times overstate or understate valuation when the earnings are temporarily overstated or understated. We compare the earnings rule tested on CAPE as well as PE for this reason and compare the wealth processes of Kelly portfolio using CAPE to estimate yield vs Kelly portfolio using PE to estimate yield.</p>
 <div class="cell" data-execution_count="8">
 <details>
 <summary>Code</summary>
@@ -701,7 +698,7 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    TR <span class="op">=</span> np.array(TR)</span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    TR <span class="op">=</span> TR<span class="op">/</span>TR[<span class="dv">0</span>]</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'PE timing (yellow) vs CAPE timing (cyan)'</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth by Strat PE (yellow) vs CAPE timing (cyan)'</span>)</span>
 <span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:],x_plt[index_start:]<span class="op">/</span>x_plt[index_start],<span class="st">'y'</span>,</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>                 t[index_start:],X_PE10_plt[index_start:]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>)<span class="op">;</span></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)<span class="op">;</span></span>
@@ -723,14 +720,16 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-9-output-1.png" width="785" height="517"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-9-output-1.png" width="780" height="517"></p>
 </div>
 </div>
+<p>Interestingly, the Kelly portfolio decided from CAPE ratio performs more poorly than that decided from PE ratio. This is true on a Sharpe basis as well and cannot be attributed only due to leverage. This is examined in the final analysis <a href="#sec-finalanalysis">Section&nbsp;6</a>.</p>
+<p>Since the CAPE and PE based models have net leverage, let us compare them to a 2x levered SP500 portfolio. This also roughly matches the Kelly optimal leverage for historically fitted SP500 data.</p>
 <div class="cell" data-execution_count="9">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt.figure(<span class="dv">1</span>,(<span class="dv">8</span>,<span class="fl">5.5</span>))<span class="op">;</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Wealth processes under PE timing (yellow) vs CAPE timing (cyan) and 2x leveraged (blue)'</span>)<span class="op">;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Real Wealth under PE timing (yellow) vs CAPE timing (cyan) and 2x leveraged (blue)'</span>)<span class="op">;</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.plot(t[index_start:],x_plt[index_start:]<span class="op">/</span>x_plt[index_start],<span class="st">'y'</span>,</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>             t[index_start:],X_PE10_plt[index_start:]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>,</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>              t[index_start:],TR2[index_start:]<span class="op">/</span>TR2[index_start],<span class="st">'b'</span>)<span class="op">;</span></span>
@@ -738,7 +737,308 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-10-output-1.png" width="740" height="468"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-10-output-1.png" width="694" height="468"></p>
+</div>
+</div>
+<p>In terms of risk-adjusted returns, we have:</p>
+<div class="cell" data-execution_count="10">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>returns_PE_timing <span class="op">=</span> (x_plt[index_start<span class="op">+</span><span class="dv">1</span>:]<span class="op">/</span>x_plt[index_start:<span class="op">-</span><span class="dv">1</span>])<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>returns_PE10_timing <span class="op">=</span> (X_PE10_plt[index_start<span class="op">+</span><span class="dv">1</span>:]<span class="op">/</span>X_PE10_plt[index_start:<span class="op">-</span><span class="dv">1</span>])<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>returns_SP500 <span class="op">=</span> (TR[index_start<span class="op">+</span><span class="dv">1</span>:]<span class="op">/</span>TR[index_start:<span class="op">-</span><span class="dv">1</span>])<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>sharpe_PE_timing <span class="op">=</span> np.mean(returns_PE_timing)<span class="op">/</span>np.std(returns_PE_timing)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>sharpe_PE10_timing <span class="op">=</span> np.mean(returns_PE10_timing)<span class="op">/</span>np.std(returns_PE10_timing)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>sharpe_SP500 <span class="op">=</span> np.mean(returns_SP500)<span class="op">/</span>np.std(returns_SP500)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#table output</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'PE Timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>sharpe_table <span class="op">=</span> pd.DataFrame(sharpe_ratio_table.values(), index<span class="op">=</span>sharpe_ratio_table.keys(), columns<span class="op">=</span>[<span class="st">'Modified Sharpe'</span>, <span class="st">'Mean Return'</span>, <span class="st">'Volatility'</span>])</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sharpe_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>             Modified Sharpe  Mean Return  Volatility
+PE Timing           0.542872     0.158124    0.291273
+CAPE timing         0.493691     0.149018    0.301844
+SP500               0.547833     0.077775    0.141969</code></pre>
+</div>
+</div>
+<section id="pe-strategy-superior-vs-cape-not-so-fast" class="level2">
+<h2 class="anchored" data-anchor-id="pe-strategy-superior-vs-cape-not-so-fast">PE Strategy Superior vs CAPE? Not so fast…</h2>
+<p>One might look and see that the Kelly strategy that made decisions vs PE outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.</p>
+<p>What happened? Well, if we look at the data the PE ratio might be “looking into the future”. It actually isn’t because the decision made at time <span class="math inline">\(t\)</span> is based on the realized earnings as of time <span class="math inline">\(t\)</span>. However, the problem is that investors actually don’t know the realized earnings at time <span class="math inline">\(t\)</span> due to the reporting cycle of companies. A hypothetical person with full insider information knows the exact earnings at time <span class="math inline">\(t\)</span>. However, it is uncertain if real investors actually have this information.</p>
+<p>So actually, what if all an investor has is access to the 1 year trailing earnings starting with the realized earnings 3 months ago? Then PE for this investor is estimated from these trailing earnings. Will the PE timing model then outperform that of CAPE?</p>
+<p>Let’s see how it does:</p>
+<div class="cell" data-execution_count="11">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.read_excel(<span class="st">'PEdata.xlsx'</span>,sheet_name<span class="op">=</span><span class="st">'Sheet1'</span>,header<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    PEdata <span class="op">=</span> df[<span class="dv">4</span>][<span class="dv">5</span>:<span class="dv">1805</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    TotalReturndata <span class="op">=</span> df[<span class="dv">5</span>][<span class="dv">5</span>:<span class="dv">1805</span>]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    IndexRealE <span class="op">=</span> df[<span class="dv">6</span>][<span class="dv">5</span>:<span class="dv">1805</span>]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    PE10data <span class="op">=</span> df[<span class="dv">8</span>][<span class="dv">5</span>:<span class="dv">1805</span>]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    PE1data <span class="op">=</span> df[<span class="dv">2</span>][<span class="dv">5</span>:<span class="dv">1805</span>]</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    PE <span class="op">=</span> np.array(PEdata)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    PE <span class="op">=</span> PE.astype(np.float32)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    PE <span class="op">=</span> torch.tensor(PE)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    PE1 <span class="op">=</span> np.array(PE1data)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    PE1 <span class="op">=</span> PE1.astype(np.float32)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    PE1 <span class="op">=</span> torch.tensor(PE1)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> np.array(PE10data) </span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> PE10.astype(np.float32)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> torch.tensor(PE10)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    TR <span class="op">=</span> np.array(TotalReturndata)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    TR <span class="op">=</span> TR.astype(np.float32)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    TR <span class="op">=</span> torch.tensor(TR)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    TR2 <span class="op">=</span> <span class="dv">0</span><span class="op">*</span>TR</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    IndexRealE <span class="op">=</span> np.array(IndexRealE)</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    IndexRealE <span class="op">=</span> IndexRealE.astype(np.float32)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    IndexRealE <span class="op">=</span> torch.tensor(IndexRealE)</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    N_steps <span class="op">=</span> <span class="bu">len</span>(TR)</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    dt <span class="op">=</span> <span class="dv">1</span><span class="op">/</span><span class="dv">12</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    T <span class="op">=</span> dt<span class="op">*</span><span class="bu">len</span>(TR)</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    X_PE10 <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    X_PE1 <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.empty(N_steps<span class="op">-</span><span class="dv">1</span>,<span class="st">'O'</span>)</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    pi_val <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    pi_valPE10 <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    pi_valPE1 <span class="op">=</span> np.empty(N_steps,<span class="st">'O'</span>)</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    X[<span class="dv">0</span>] <span class="op">=</span> torch.tensor([<span class="fl">1.</span>]).unsqueeze(<span class="dv">1</span>) <span class="co">#initial condition represents X(0) = 10. Let's just start with $10</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>    TR2[<span class="dv">0</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>    X_PE10[<span class="dv">0</span>] <span class="op">=</span> torch.tensor([<span class="fl">1.</span>]).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    X_PE1[<span class="dv">0</span>] <span class="op">=</span> torch.tensor([<span class="fl">1.</span>]).unsqueeze(<span class="dv">1</span>) </span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> (<span class="dv">1</span><span class="op">/</span>PE).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>    yPE10 <span class="op">=</span> (<span class="dv">1</span><span class="op">/</span>PE10).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>    yPE1 <span class="op">=</span> (<span class="dv">1</span><span class="op">/</span>PE1).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>,N_steps<span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>        t[i] <span class="op">=</span> torch.tensor([<span class="fl">10.0</span>]).unsqueeze(<span class="dv">1</span>) </span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        ty <span class="op">=</span> torch.cat((t[i],y[i].unsqueeze(<span class="dv">1</span>)),<span class="dv">1</span>)</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>        tyPE10 <span class="op">=</span> torch.cat((t[i],yPE10[i].unsqueeze(<span class="dv">1</span>)),<span class="dv">1</span>)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>        tyPE1 <span class="op">=</span> torch.cat((t[i],yPE1[i].unsqueeze(<span class="dv">1</span>)),<span class="dv">1</span>)</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>        pi_val[i] <span class="op">=</span> pi_NN(ty)</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>        pi_valPE10[i] <span class="op">=</span> pi_NN(tyPE10)</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>        pi_valPE1[i] <span class="op">=</span> pi_NN(tyPE1)</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Now we do an ODE step</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>        r <span class="op">=</span> TR[i<span class="op">+</span><span class="dv">1</span>]<span class="op">/</span>TR[i]<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>        X[i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> X[i] <span class="op">+</span> r<span class="op">*</span>pi_val[i]<span class="op">*</span>X[i]</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>        X_PE10[i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> X_PE10[i] <span class="op">+</span> r<span class="op">*</span>pi_valPE10[i]<span class="op">*</span>X_PE10[i]</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>        X_PE1[i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> X_PE1[i] <span class="op">+</span> r<span class="op">*</span>pi_valPE1[i]<span class="op">*</span>X_PE1[i] </span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>        TR2[i<span class="op">+</span><span class="dv">1</span>] <span class="op">=</span> TR2[i] <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>r<span class="op">*</span>TR2[i]</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.linspace(<span class="dv">2021</span><span class="op">-</span>T,<span class="dv">2021</span>,N_steps)</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>    x_PE1_tens <span class="op">=</span> torch.Tensor(N_steps)</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>    torch.stack(<span class="bu">list</span>(X_PE1),out<span class="op">=</span>x_PE1_tens)<span class="op">;</span></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>    x_PE1_plt <span class="op">=</span> x_PE1_tens.numpy()</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>    x_PE1_plt <span class="op">=</span> x_PE1_plt[:,<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>    pi_tens <span class="op">=</span> torch.Tensor(N_steps<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>    torch.stack(<span class="bu">list</span>(pi_val[<span class="dv">0</span>:<span class="op">-</span><span class="dv">1</span>]),out<span class="op">=</span>pi_tens)<span class="op">;</span></span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>    pi_plt <span class="op">=</span> pi_tens.numpy()</span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>    pi_plt <span class="op">=</span> pi_plt[:,<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>    plt.figure(<span class="dv">1</span>,(<span class="dv">8</span>,<span class="fl">5.5</span>))<span class="op">;</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>    plt.title(<span class="st">'Real Wealth under PE 1 year trailing timing (yellow) vs CAPE timing (cyan)'</span>)<span class="op">;</span></span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>    plt.plot(t[:],x_PE1_plt<span class="op">/</span>x_PE1_plt[<span class="dv">0</span>],<span class="st">'y'</span>,</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>                 t[:],X_PE10_plt[:]<span class="op">/</span>X_PE10_plt[<span class="dv">0</span>],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    plt.yscale(<span class="st">"log"</span>)<span class="op">;</span></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-12-output-1.png" width="647" height="468"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="12">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>returns_PE1_timing <span class="op">=</span> (x_PE1_plt[<span class="dv">1</span>:]<span class="op">/</span>x_PE1_plt[<span class="dv">0</span>:<span class="op">-</span><span class="dv">1</span>])<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>returns_PE10_timing <span class="op">=</span>(X_PE10_plt[<span class="dv">1</span>:]<span class="op">/</span>X_PE10_plt[<span class="dv">0</span>:<span class="op">-</span><span class="dv">1</span>])<span class="op">-</span><span class="dv">1</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>sharpe_PE1_timing <span class="op">=</span> np.mean(returns_PE1_timing)<span class="op">/</span>np.std(returns_PE1_timing)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>sharpe_PE10_timing <span class="op">=</span> np.mean(returns_PE10_timing)<span class="op">/</span>np.std(returns_PE10_timing)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>sharpe_SP500 <span class="op">=</span> np.mean(returns_SP500)<span class="op">/</span>np.std(returns_SP500)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#table output</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {<span class="st">'PE 1yr trailing Timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))}</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>sharpe_table <span class="op">=</span> pd.DataFrame(sharpe_ratio_table.values(), index<span class="op">=</span>sharpe_ratio_table.keys(), columns<span class="op">=</span>[<span class="st">'Modified Sharpe'</span>, <span class="st">'Mean Return'</span>, <span class="st">'Volatility'</span>])</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sharpe_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>                        Modified Sharpe  Mean Return  Volatility
+PE 1yr trailing Timing         0.542872     0.158124    0.291273
+CAPE timing                    0.493691     0.149018    0.301844
+SP500                          0.547833     0.077775    0.141969</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-finalanalysis" class="level1">
+<h1>Final Analysis of Performance</h1>
+<p>Interestingly, we see that this model alone has worse performance than the SP500. The performance of this portfolio was completely due to leverage and the SP500 offered better risk adjusted returns.</p>
+<p>So why did the model fail? Let’s examine a few interesting details:</p>
+<ol type="1">
+<li><p>The model was trained to be optimal on an OU process for earnings yield and a GBM for real earnings. If the true dynamics are not adequately captured by this model, then the Kelly portfolio for this fake model will not perform adequately.</p></li>
+<li><p>The model exhibited outperformance vs the 2x levered SP500 until around 1990 (see plot below). Substantial changes have happened in this period in terms of accounting policies which might make modern CAPEs and PEs seem artificially high compared to their past values, dividend payout policies which can distort data for CAPE and PE, and a rise in corporations which emphasize intangible value and so-called “investing through the balance sheet” meaning that true profitability can be understated. Another part of the change since 1990 has been increased corporate margins causing real earnings growth to exceed its historical average. One might wonder what caused this change– is it lasting or potentially subject to mean reversion?</p></li>
+</ol>
+<div class="cell" data-execution_count="13">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.3</span>,<span class="fl">5.5</span>))<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.linspace(<span class="dv">2021</span><span class="op">-</span>T,<span class="dv">2021</span>,N_steps)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1990</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">2020</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>                 t[index_start:index_end],X_PE10_plt[index_start:index_end]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:index_end],TR[index_start:index_end]<span class="op">/</span>TR[index_start],<span class="st">'b'</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,0].set_yscale("log");</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].set_title(<span class="st">'SP500 Real Earnings'</span>)<span class="op">;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].plot(t[index_start:index_end],IndexRealE[index_start:index_end],<span class="st">'g'</span>)<span class="op">;</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,1].set_yscale("log") ; </span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> np.array(PE10)    </span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">'CAPE ratio'</span>)<span class="op">;</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[1,1].plot(t[index_start:index_end],PE[index_start:index_end],'y');</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].plot(t[index_start:index_end],PE10[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1990 - 2020: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="785" height="548"></p>
+</div>
+</div>
+<ol start="4" type="1">
+<li>Periods of substantial underperformance: We mentioned 1990-2021 as a period where these models weren’t fully invested as they deemed PE and CAPE too high. This caused the naive 200% portfolio to catch up dramatically. However, there is another period which shows a great failure of this method. From 1915-1920, (see below) the stock market looked very cheap on a PE and CAPE basis (continuing to look cheap on a CAPE basis past 1920). However, there was a dramatic deflationary recession from 1920-1921. Simply put, real earnings exhibited volatility way higher than what the fitted model would expect. The models were basically allocating at max leverage of 300% in this period. This goes to show that a visibly cheap market is still subject to extreme crashes that was not factored in on the model for which the Kelly portfolio strategy was trained. The 1920 real earnings crash may be the reason the market appeared so cheap prior in potential anticipation for such a crash.</li>
+</ol>
+<div class="cell" data-execution_count="14">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.3</span>,<span class="fl">5.5</span>))<span class="op">;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.linspace(<span class="dv">2021</span><span class="op">-</span>T,<span class="dv">2021</span>,N_steps)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1915</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1923</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>                 t[index_start:index_end],X_PE10_plt[index_start:index_end]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:index_end],TR[index_start:index_end]<span class="op">/</span>TR[index_start],<span class="st">'b'</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,0].set_yscale("log");</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].set_title(<span class="st">'SP500 Real Earnings'</span>)<span class="op">;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].plot(t[index_start:index_end],IndexRealE[index_start:index_end],<span class="st">'g'</span>)<span class="op">;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,1].set_yscale("log") ; </span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> np.array(PE10)    </span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">'CAPE ratio'</span>)<span class="op">;</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[1,1].plot(t[index_start:index_end],PE[index_start:index_end],'y');</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].plot(t[index_start:index_end],PE10[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1915 - 1923: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="787" height="548"></p>
+</div>
+</div>
+<ol start="4" type="1">
+<li>(continued) Another period of underperformance was surprisingly the great depression. This is strange as the CAPE was quite high. Let us see why there was underperformance here with the blow below.</li>
+</ol>
+<div class="cell" data-execution_count="15">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.3</span>,<span class="fl">5.5</span>))<span class="op">;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.linspace(<span class="dv">2021</span><span class="op">-</span>T,<span class="dv">2021</span>,N_steps)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1925</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1935</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:index_end],X_PE10_plt[index_start:index_end]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(t[index_start:index_end],TR[index_start:index_end]<span class="op">/</span>TR[index_start],<span class="st">'b'</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,0].set_yscale("log");</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].set_title(<span class="st">'SP500 Real Earnings'</span>)<span class="op">;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">1</span>].plot(t[index_start:index_end],IndexRealE[index_start:index_end],<span class="st">'g'</span>)<span class="op">;</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[0,1].set_yscale("log") ; </span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    PE10 <span class="op">=</span> np.array(PE10)    </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].set_title(<span class="st">'CAPE ratio'</span>)<span class="op">;</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">#ax[1,1].plot(t[index_start:index_end],PE[index_start:index_end],'y');</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">1</span>].plot(t[index_start:index_end],PE10[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1925 - 1935 by strat: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-16-output-1.png" width="800" height="548"></p>
 </div>
 </div>
 

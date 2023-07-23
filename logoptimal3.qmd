@@ -2,7 +2,6 @@
 title: "Log Optimal Numeraire in Incomplete Markets"
 ---
 
-# The Missing Ingredient
 
 What we will now show is a very interesting result regarding the pricing under the log-optimal numeraire. So far, we have shown for a very general model, that the pricing
 
@@ -14,7 +13,7 @@ Although an exciting result, there are two main problems this faces for practica
 
 We will not address this claim. Instead we will deal with a secondary problem. What we have shown so far is a pricing for attainable claims. For unattainable claims (ones we cannot hedge), we may still find a derivative (long or short) compelling based on the price. Thus although one cannot hedge the option, one can still assign their personal value to the option. If the option (at the observed price) adds value to their portfolio, then the investor will buy the option. If not, they will sell the option.
 
-Using utility theory, it is very easy to understand when the investor gains from buying or selling the option. Suppose $\pi$ is the optimal portfolio (among presently traded securities) for an investor with utility function $U$. All of a sudden, an option $\chi$ comes on the market. The option will payout $\xi_T$ at time $T$ and can be bought/sold for $\chi_0$. Without loss of generality, assume $V^\pi_0 = 1$. The investor will be interested (in a small amount) of the option if the initial price $\chi_0$ is such that their expected utility increases by of their current (utility optimal) portfolio for the option. If the option price is such that their expected utility decreases by adding a small amount of option, then we can show the investor would be interested in the short option position. Thus, we can price (an infinitely small amount of option) for the investor as the price such that they are indifferent to adding a small amount of option to their portfolio.
+Using utility theory, it is very easy to understand when the investor gains from buying or selling the option. Suppose $\pi$ is the optimal portfolio (among presently traded securities) for an investor with utility function $U$. All of a sudden, an option $\chi$ comes on the market. The option will payout $\chi_T$ at time $T$ and can be bought/sold for $\chi_0$. Without loss of generality, assume $V^\pi_0 = 1$. The investor will be interested (in a small amount) of the option if the initial price $\chi_0$ is such that their expected utility increases by of their current (utility optimal) portfolio for the option. If the option price is such that their expected utility decreases by adding a small amount of option, then we can show the investor would be interested in the short option position. Thus, we can price (an infinitely small amount of option) for the investor as the price such that they are indifferent to adding a small amount of option to their portfolio.
 
 # Indifference Pricing for all CRRA Utilities
 
@@ -32,7 +31,7 @@ Assuming the investor now allocates $\epsilon$ of their wealth to $\chi$ and $(1
 
 $$\frac{d}{d\epsilon} \Bigg|_{\epsilon = 0} \mathbb{E} \left[ U\left((1-\epsilon)V^{\pi_\gamma}_T + \epsilon \frac{\chi_T}{\chi_0}\right)\right] = 0.$$
 
-What this means is that the investor does not gain any utility by adding/ removing $\chi$ to their portfolio. In otherwords, they are indifferent to buying or selling the option. What we notice is that whether the above will hold or not depends on the initial price of the option $\xi_0$. Thus we call $\xi_0(\gamma)$ to be the marginal utility indifference price of the option for investor with risk tolerance $\gamma$. It turns out we can solve for $\chi_0(\gamma)$ by taking the derivative and using the linearity of the expectation. We actually get that
+What this means is that the investor does not gain any utility by adding/ removing $\chi$ to their portfolio. In otherwords, they are indifferent to buying or selling the option. What we notice is that whether the above will hold or not depends on the initial price of the option $\chi_0$. Thus we call $\chi_0(\gamma)$ to be the marginal utility indifference price of the option for investor with risk tolerance $\gamma$. It turns out we can solve for $\chi_0(\gamma)$ by taking the derivative and using the linearity of the expectation. We actually get that
 
 This corresponds to:
 
@@ -55,7 +54,7 @@ We know that if the investor has the log utility $\gamma = 0$, then we will have
 $$
 \chi_0(0) = \mathbb{E}^\mathbb{P} \left[ \frac{\chi_T}{V^{\pi^*}_T)} \right].$$
 
-That's exciting!!! But wait... not really. No matter what people try to make you believe, not everyone is a log utility investor (trust me, there will be some people who try to convince you otherwise.) In reality, not everyone is a CRRA investor, but the following result is so satisfying, that maybe we can temporarily allow for it.
+That's exciting!!! But wait... not really. Not everyone is a log utility investor as they could have different risk preferences. In reality, not everyone is a CRRA investor either, but the following result is so satisfying, that maybe we can temporarily allow for it.
 
 # The Big Result
 
@@ -63,17 +62,26 @@ We haven't yet used the CRRA utility property. What we will show is that for all
 
 $$\chi_0(\gamma) = \mathbb{E} \left[\frac{\chi_T}{V^{\pi^*}_T} \right],$$
 
-where $V^{\pi^*}_T$ is the log-optimal portfolio, which was the result we had before for attainable claims!!!
+where $V^{\pi^*}_T$ is the value process at time $T$ for the log-optimal portfolio-- the result we had before for attainable claims!!!
 
-Now, one big caveat is that this is the price for an infinitessimal amount of derivative. The desired price the investor demands may differ if they already and a substantial position in the derivative security. But still, pretty unbelievable result!
+Now, one big caveat is that this is the price for an infinitesimal amount of derivative. The desired price the investor demands may differ if they already and a substantial position in the derivative security. But still, pretty unbelievable result!
 
 ## The computation
 
-As before, we assume the following model for $I$ risk assets:
+As before, we assume the following model for $I$ risk assets driven by $J$ noises so as to get:
 
-$$\frac{dV^\pi_t}{V^\pi_t} = \sum_{i=1}^I \frac{dS^i_t}{S^i_t}$$ driven by $J$ noises so as to get $$ \frac{dS^i_t}{S^i_t} = \mu^i_t dt + \sum_{j=J}^m \sigma^{ij}_t dW^j_t.$$ Notice how we are temporarily ignoring $r_t$. This can be easily included but it can also be easily excluded by transforming all price processes by using the (temporary) bank account numeraire. This can be easily worked out. The main thing is that the asset local mean returns are understood now as $\mu^i_t - r_t$ (since they are discounted by the bank account). Also, $(\pi^i_t)$ need not add up to $1$ as the remaining amount is taken to be borrowings. This does not enter the immediate picture for dynamics but will play a role when one converts back to units of currency and not bank account. Anyway, with this out of the way we can compute:
+$$ \frac{dS^i_t}{S^i_t} = \mu^i_t dt + \sum_{j=J}^m \sigma^{ij}_t dW^j_t$$
 
-$$d \log((V^{\pi_\gamma}_t)^\gamma) = \gamma\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} - \frac{1}{2} \gamma \left(\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} \right)^2.$$
+with portfolio processes then given by 
+
+$$\frac{dV^\pi_t}{V^\pi_t} = \sum_{i=1}^I \pi^i_t \frac{dS^i_t}{S^i_t}.$$
+Notice how we are temporarily ignoring the money-market allocation and rate $r_t$. Actually, we can assume that we are (temporarily) in units of the cash-account numeraire i.e. everything is priced in units of $B_t$. This can be easily worked out. The main thing is that the asset local mean returns are understood now as $\mu^i_t - r_t$ (since they are discounted by the bank account). Also, $(\pi^i_t)$ need not add up to $1$ as the remaining amount is taken to be borrowings. If it makes one feel better, one can adjust the model to be the same one from [part 2](./logoptimal2.qmd) and carry out the future computations in terms of the model in terms of units of currency and not units of $B_t$. 
+
+Anyway, with this out of the way, we proceed by computing the optimal portfolios for investors with $\gamma$ risk preference parameter. Actually, we will show that like the log-utility maximization example from [part 1](./logoptimal1.qmd), the case of power utility can also be optimized in a very similar fashion in a way that ignores HJB equations!
+
+We compute:
+
+$$d \log((V^{\pi_\gamma}_t)^\gamma) = \gamma d \log(V^{\pi_\gamma}_t) =  \gamma\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} - \frac{1}{2} \gamma \left(\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} \right)^2.$$
 
 This gives
 
@@ -81,11 +89,22 @@ $$ (V^{\pi_\gamma}_T)^\gamma = \exp \left[ \int_0^T \gamma \left(  \pi_t^T \mu_t
 
 So
 
-$$\mathbb{E}[U(V^{\pi_\gamma}_T)] = \mathbb{E}[\gamma (V^{\pi_\gamma}_T)^\gamma] = \gamma \exp \left[ \int_0^T  \left(  \gamma \pi_t^T \mu_t -   (\frac{1}{2}\gamma - \frac{1}{2}\gamma^2)  \pi_t^T \sigma_t \sigma_t^T \pi_t \right) dt \right].$$
+$$\mathbb{E}[U(V^{\pi_\gamma}_T)] = \mathbb{E}[\gamma (V^{\pi_\gamma}_T)^\gamma] = \gamma \mathbb{E} \left[ \exp \left( \int_0^T  \left(  \gamma \pi_t^T \mu_t -   (\frac{1}{2}\gamma - \frac{1}{2}\gamma^2)  \pi_t^T \sigma_t \sigma_t^T \pi_t \right) dt \right) \right].$$
 
-So if $Ker(\sigma^T) = \varnothing$ then the optimal portfolio occurs at $$ \pi_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t,$$ which corresponds to $\pi_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} (\mu_t - r_t \vec{1})$ under the appropriate transformation of $\mu_t$ understood to be the currency mean rate of return of stocks rather than the bank account numeraire denominated mean rate of return.
+So if $Ker(\sigma_t\sigma_t^T) = \varnothing$ then, we can optimize the integrand pointwise and the optimal portfolio occurs at $$ \pi_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t$$. To see why optimizing the integrand pointwise holds, note that:
 
-In reality, $Ker(\sigma^T) = \varnothing$ which corresponds to absence of arbitrage in the underlying assets, and thus we have the unique portfolio strategy for each given risk preference. With everything somewhat explicit, we can easily compute the indifference price
+$$f(\pi_t(\omega) , \omega, t) =  \gamma \pi_t(\omega)^T \mu_t(\omega) -   (\frac{1}{2}\gamma - \frac{1}{2}\gamma^2)  \pi_t(\omega)^T \sigma_t(\omega) \sigma_t^T(\omega) \pi_t(\omega).$$
+
+Note that $\gamma < 1$ and $\sigma \sigma^T$ is uniformly strictly positive definite by assumption, so by quadratic optimization, we have that $\pi^*_t(\omega) = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t$ is such that:
+
+$$f(\pi_t(\omega),\omega,t) \leq f(\pi^*_t(\omega),\omega,t), \quad \forall (t, \omega).$$
+Hence
+
+
+$$\mathbb{E} \left[ e^{\int_0^T f (\pi_t(\omega),\omega,t) dt} \right] \leq \mathbb{E} \left[ e^{\int_0^T f(\pi^*_t(\omega),\omega,t) dt} \right].$$
+
+
+In reality, $Ker(\sigma_t\sigma_t^T) = \varnothing$ which corresponds to absence of arbitrage in the underlying assets, and thus we have the unique portfolio strategy for each given risk preference. With everything somewhat explicit, we can easily compute the indifference price
 
 $$\chi_0 = \frac{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) \chi_T \right]}{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) V^{\pi_\gamma}_T\right]}$$
 
