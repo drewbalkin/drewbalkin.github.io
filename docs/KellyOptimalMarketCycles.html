@@ -174,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#pe-strategy-superior-vs-cape-not-so-fast" id="toc-pe-strategy-superior-vs-cape-not-so-fast" class="nav-link" data-scroll-target="#pe-strategy-superior-vs-cape-not-so-fast">PE Strategy Superior vs CAPE? Not so fast…</a></li>
   </ul></li>
-  <li><a href="#sec-finalanalysis" id="toc-sec-finalanalysis" class="nav-link" data-scroll-target="#sec-finalanalysis">Final Analysis of Performance</a></li>
+  <li><a href="#sec-finalanalysis" id="toc-sec-finalanalysis" class="nav-link" data-scroll-target="#sec-finalanalysis">Final Analysis of Performance – Periods of Failure</a></li>
   </ul>
 </nav>
     </div>
@@ -445,7 +445,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="780" height="516"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="792" height="516"></p>
 </div>
 </div>
 <p>We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is intuitive given the model dynamics which models in mean reversion of PE ratios.</p>
@@ -766,14 +766,14 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Modified Sharpe  Mean Return  Volatility
-PE Timing           0.542872     0.158124    0.291273
-CAPE timing         0.493691     0.149018    0.301844
+PE Timing           0.530488     0.158237    0.298286
+CAPE timing         0.477708     0.147098    0.307924
 SP500               0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
 <section id="pe-strategy-superior-vs-cape-not-so-fast" class="level2">
 <h2 class="anchored" data-anchor-id="pe-strategy-superior-vs-cape-not-so-fast">PE Strategy Superior vs CAPE? Not so fast…</h2>
-<p>One might look and see that the Kelly strategy that made decisions vs PE outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.</p>
+<p>One might look and see that the Kelly strategy that made decisions using the PE ratio outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.</p>
 <p>What happened? Well, if we look at the data the PE ratio might be “looking into the future”. It actually isn’t because the decision made at time <span class="math inline">\(t\)</span> is based on the realized earnings as of time <span class="math inline">\(t\)</span>. However, the problem is that investors actually don’t know the realized earnings at time <span class="math inline">\(t\)</span> due to the reporting cycle of companies. A hypothetical person with full insider information knows the exact earnings at time <span class="math inline">\(t\)</span>. However, it is uncertain if real investors actually have this information.</p>
 <p>So actually, what if all an investor has is access to the 1 year trailing earnings starting with the realized earnings 3 months ago? Then PE for this investor is estimated from these trailing earnings. Will the PE timing model then outperform that of CAPE?</p>
 <p>Let’s see how it does:</p>
@@ -898,20 +898,21 @@ SP500               0.547833     0.077775    0.141969</code></pre>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                        Modified Sharpe  Mean Return  Volatility
-PE 1yr trailing Timing         0.542872     0.158124    0.291273
-CAPE timing                    0.493691     0.149018    0.301844
+PE 1yr trailing Timing         0.530488     0.158237    0.298286
+CAPE timing                    0.477708     0.147098    0.307924
 SP500                          0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
 </section>
 </section>
 <section id="sec-finalanalysis" class="level1">
-<h1>Final Analysis of Performance</h1>
+<h1>Final Analysis of Performance – Periods of Failure</h1>
 <p>Interestingly, we see that this model alone has worse performance than the SP500. The performance of this portfolio was completely due to leverage and the SP500 offered better risk adjusted returns.</p>
 <p>So why did the model fail? Let’s examine a few interesting details:</p>
 <ol type="1">
-<li><p>The model was trained to be optimal on an OU process for earnings yield and a GBM for real earnings. If the true dynamics are not adequately captured by this model, then the Kelly portfolio for this fake model will not perform adequately.</p></li>
-<li><p>The model exhibited outperformance vs the 2x levered SP500 until around 1990 (see plot below). Substantial changes have happened in this period in terms of accounting policies which might make modern CAPEs and PEs seem artificially high compared to their past values, dividend payout policies which can distort data for CAPE and PE, and a rise in corporations which emphasize intangible value and so-called “investing through the balance sheet” meaning that true profitability can be understated. Another part of the change since 1990 has been increased corporate margins causing real earnings growth to exceed its historical average. One might wonder what caused this change– is it lasting or potentially subject to mean reversion?</p></li>
+<li><p>The model was trained to be optimal on an OU process for earnings yield and a GBM for real earnings. If the true dynamics are not adequately captured by this model, then the Kelly portfolio for this fake model will not perform adequately. Moreover, if past parameters differ than those in the future (i.e.&nbsp;if there is a permanently higher valuation demanded by the market for instance), the model is not optimal for this setting.</p></li>
+<li><p>If the data for earnings does not accurately represent the true earnings power of the SP500 (i.e.&nbsp;overstated or understated) then the model may become too optimistic or too pessimistic at the wrong times. This is especially true when valuations look cheap or expensive for a reason! If the optical valuation does not agree with true valuation, then the model will perform poorly as it allocates based on CAPE.</p></li>
+<li><p>The model exhibited outperformance vs the 2x levered SP500 until around 1990 (see plot below). Substantial changes have happened in this period including: new accounting policies which might make modern CAPEs and PEs seem artificially high compared to their past values, dividend payout policies which can distort data for CAPE and PE, and a rise in corporations which emphasize intangible value and so-called “investing through the balance sheet” meaning that true profitability can be understated. Another part of the change since 1990 has been increased corporate margins causing real earnings growth to exceed its historical average. One might wonder what caused this change– is it lasting or potentially subject to mean reversion?</p></li>
 </ol>
 <div class="cell" data-execution_count="13">
 <details>
@@ -923,9 +924,9 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1990</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">2020</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">2021</span></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)<span class="op">-</span><span class="dv">1</span></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].plot(</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>                 t[index_start:index_end],X_PE10_plt[index_start:index_end]<span class="op">/</span>X_PE10_plt[index_start],<span class="st">'c'</span>)<span class="op">;</span></span>
@@ -947,11 +948,11 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
 <span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1990 - 2020: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1990 - 2021: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
 <span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="785" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="791" height="548"></p>
 </div>
 </div>
 <ol start="4" type="1">
@@ -967,7 +968,7 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1915</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1923</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1922</span></span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
 <span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
@@ -991,11 +992,11 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
 <span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1915 - 1923: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1915 - 1922: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
 <span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="787" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="785" height="548"></p>
 </div>
 </div>
 <ol start="4" type="1">
@@ -1010,8 +1011,8 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.linspace(<span class="dv">2021</span><span class="op">-</span>T,<span class="dv">2021</span>,N_steps)</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1925</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1935</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    startyear <span class="op">=</span> <span class="dv">1928</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    endyear <span class="op">=</span> <span class="dv">1934</span></span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    index_start <span class="op">=</span> <span class="bu">int</span>((startyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    index_end <span class="op">=</span> <span class="bu">int</span>((endyear<span class="op">-</span><span class="dv">1871</span>)<span class="op">/</span>dt)</span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">0</span>,<span class="dv">0</span>].set_title(<span class="st">'Real Wealth Growth'</span>)</span>
@@ -1034,13 +1035,16 @@ SP500                          0.547833     0.077775    0.141969</code></pre>
 <span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
 <span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1925 - 1935 by strat: CAPE timing (cyan), SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1928 - 1934: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
 <span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-16-output-1.png" width="800" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-16-output-1.png" width="785" height="548"></p>
 </div>
 </div>
+<p>The above chart shows another period of failure with the CAPE based model. The surprising thing about this period is that it would be one where you would think the model should exceed. The market top in 1929 was a period of CAPE ratio significantly above its historical mean.</p>
+<p>One would think it was good that the CAPE based timing model only had around 25% allocation to equities during 1929-1930. This was indeed good, for those brief moments.</p>
+<p>However, 1931-1932, the valuation started to look really attractive to the CAPE model and it over-leveraged into the last part of the crash. Despite remaining mostly out of the market during the first part of the crash, it’s high degree of leverage throughout the second portion actually caused it to underperform the SP500 during this entire 1928 - 1934 time period!</p>
 
 
 </section>

@@ -639,7 +639,7 @@ print(sharpe_table)
 
 ## PE Strategy Superior vs CAPE? Not so fast...
 
-One might look and see that the Kelly strategy that made decisions vs PE outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.
+One might look and see that the Kelly strategy that made decisions using the PE ratio outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.
 
 What happened? Well, if we look at the data the PE ratio might be "looking into the future". It actually isn't because the decision made at time $t$ is based on the realized earnings as of time $t$. However, the problem is that investors actually don't know the realized earnings at time $t$ due to the reporting cycle of companies. A hypothetical person with full insider information knows the exact earnings at time $t$. However, it is uncertain if real investors actually have this information.
 
@@ -789,9 +789,9 @@ with torch.no_grad():
 
     
     startyear = 1990
-    endyear = 2020
+    endyear = 2021
     index_start = int((startyear-1871)/dt)
-    index_end = int((endyear-1871)/dt)
+    index_end = int((endyear-1871)/dt)-1
     ax[0,0].set_title('Real Wealth Growth')
     ax[0,0].plot(
                  t[index_start:index_end],X_PE10_plt[index_start:index_end]/X_PE10_plt[index_start],'c');
@@ -813,7 +813,7 @@ with torch.no_grad():
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();
-    fig.suptitle('1990 - 2020: CAPE timing (cyan), 100% SP500 (blue)',y=1.03)
+    fig.suptitle('1990 - 2021: CAPE timing (cyan), 100% SP500 (blue)',y=1.03)
     plt.show();
 
 ```
