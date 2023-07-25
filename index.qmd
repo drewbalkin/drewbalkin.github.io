@@ -20,10 +20,6 @@ As for my background, I am completing my PhD in mathematics from UC Santa Barbar
 
 For this blog, I wanted to highlight some of my thoughts in a more accessible and informal manner. In part, some work is inspired by my academic research such as my blog post on [valuation based Kelly optimal portfolios for market cycle investing](./KellyOptimalMarketCycles.qmd). Some of the work in this blog is just my own personal excursion into financial math topics of great interest to me that are relatively uncovered in the financial literature. While the results are known if you are willing to dig deep, I show my own derivations of how the log-optimal portfolio can be used in option pricing in a surprisingly general manner (see the "Log Optimal Portfolio and Option Pricing" blog posts [part 1](./logoptimal1.qmd), [part 2](./logoptimal2.qmd), and [part 3](./logoptimal3.qmd)).
 
-### Log-Optimal Portfolio and Option Pricing
-
-Traditionally, financial derivatives are priced as their discounted payout under a risk neutral measure. I was intrigued by an approach that I (re)discovered which showed the price of the derivative is actually its payout under the physical measure when a certain unit of account (or numeraire) was considered. Specifically, if one takes as unit of account the so-called "log-optimal portfolio", then the option's price is exactly the expected value of the option's payout under the true physical measure! In other words, pricing a derivative/security/asset in units of log-optimal portfolio naturally discounts for risk and time! Not only is this true, but it is true in very general senses. For my own derivations, I have [shown this to be true for the traditional Black-Scholes model](./logoptimal1.qmd), a [generalized model for all attainable claims](./logoptimal2.qmd), and even true for a [utility based pricing in the case of unattainable claims](./logoptimal3.qmd)!
-
 ### Valuation-based Kelly Optimal Portfolios for Market Cycle Investing
 
 Every financial asset can be viewed in terms of its random payoff dynamics. In particular,
@@ -32,10 +28,18 @@ Every financial asset can be viewed in terms of its random payoff dynamics. In p
 
 -   Equity is a claim on future profits net of debt repayments. A company need not pay its net profit as dividend but it gets reinvested one way or another for the purpose of future dividends. The future profitability of a company or enterprise is clearly random in nature.
 
-Individual investors can then price assets based on the desire for the assets cohesive random payoff dynamics. The underlying asset prices are not exogenous, but rather endogenous variables arising from the aggregate portfolio construction of all investors.
+Individual investors can then price assets based on the desire for the cohesive random payout dynamics of the assets. The underlying asset prices are not exogenous, but rather endogenous variables arising from the aggregate portfolio construction of all investors.
 
-However, what about the fact that individuals can have risk preferences that change through time? Secondly, how much buying and selling of equities is not fundamental-- i.e. driven without regard for valuation? These two factors, changing risk preferences and valuation agnostic investing, may cause the market to exhibit cycles of differing valuations which are more behavioral rather than rational. We are all familiar with the famous phrase "irrational exuberance". 
+However, what about the fact that individuals can have risk preferences that change through time? Secondly, how much buying and selling of equities is not fundamental-- i.e. driven without regard for valuation? These two factors, changing risk preferences and valuation agnostic investing, may cause the market to exhibit cycles of differing valuations-- cycles which are more behavioral rather than rational.
 
 Assuming this is true, how should one allocate given the existence of these market cycles?
 
 I offer a very simple model to offer the start of a framework for this question. I hope to develop this into a more robust model in the future. This work is included in my blog post on [Kelly Optimal portfolios in earnings driven financial markets](./KellyOptimalMarketCycles.qmd).
+
+
+### Log-Optimal Portfolio and Option Pricing
+
+Traditionally, financial derivatives are priced as their discounted payout under a risk neutral measure. I was intrigued by an approach that I rediscovered which shows the price of the derivative is actually its payout under the physical measure when a certain unit of account (or numeraire) was considered. Specifically, if one takes as unit of account the so-called "log-optimal portfolio", then the option's price is exactly the expected value of the option's payout under the true physical measure! In other words, pricing a derivative/security/asset in units of log-optimal portfolio naturally discounts for risk and time! Not only is this true, but it holds in very general frameworks.
+
+While the results are known, I want to present this knowledge in a non-technical fashion for someone who is somewhat experienced with stochastic calculus and exposed to the usual risk-neutral option pricing framework in the same way I rediscovered these results. Here are my lecture notes on this topic starting from [the basic case of a traditional Black-Scholes model](./logoptimal1.qmd), and then to [the case for the generalized model for all attainable claims](./logoptimal2.qmd). In fact, this framework is even true for a [utility based pricing in the case of unattainable claims](./logoptimal3.qmd)! 
+

@@ -6,29 +6,28 @@ title: "Kelly Optimal In Earnings Driven Financial Market"
 # Overview
 This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by a modified Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically showcasing that neural networks can be used to solve similar problems of this form in the case when no analytical solutions exist.
 
-To make such a model useful, we will have to construct a more realistic model of valuation and impact on return. The main problem with this model is that earnings is given by a GBM which in particular means it is Markov. The problem with this perspective is that the current earnings level is not the best predictor of future earnings. Because of this, PE ratios can appear artificially low or high as the current earnings may not demonstrate the actual (probabilistic) future earnings power. For instance, in 2009 earnings were near $0$ but immediately recovered to levels near previous years. This would cause PE ratios to be overstated. However, the model we use assumes that earnings are Markovian in nature and hence valuation is completely understood in terms of the trailing PE ratio (as the distribution of future earnings depends only on the current earnings).
+To make such a model useful, we will have to construct a more realistic model of valuation and impact on return. The first thing we could add is to add interest rates in a joint model with PE ratios. Secondly, a  key problem with the model on real world performance are periods where the market looks optically cheap or expensive on a PE-basis, but the reality is the market is cheap or expensive for a reason. In the last section, @sec-finalanalysis, we will examine these periods where the model failed.
 
-
-The main purpose of this post, therefore, is to highlight a methodology for for how one can a train long-term portfolio optimization model given a model for market dynamics.
+The main purpose of this post, therefore, is to highlight a methodology for for how one can a train long-term portfolio optimization model given a model for market dynamics. Future work will include training optimal portfolios against more realistic market models. 
 
 # Model Derivation
 
-Suppose we have a stock or fund with price at time $t$ given by $S_t$. The price of the stock discounts future dividends as it is a claim on future (stochastic) dividends, where the dividends are discounted not only by time but by their risk. So how does $S_t$ then change over time?
-
-1. Dividends are paid out.
-2. The probability distribution of future dividends changes.
-3. The risk preferences of investors change.
+Suppose we have a stock or fund with price at time $t$ given by $S_t$. The price of the stock discounts future dividends not only by time but by their risk. So how does $S_t$ then change over time?
 
 
-So one component of the return (and the stochastic nature of the stock return) is from directly receiving the random stochastic payments given by the process $(D_t)$.
+1. The probability distribution of future dividends changes.
+2. The risk preferences of investors change.
 
-The second component of return is that this probabilistic future stream of dividends changes over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.
 
-However, there is a third component to return. Even if the probability distribution of future dividends were not to change over a time interval $[t,t+dt]$, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends.
+In terms of total return, the first component is from directly receiving the random stochastic payments given by the process $(D_t)$, and the remaing return is the price price return.
 
-In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth, and market multiple changes.
+One component of price return is due to the probabilistic future stream of dividends changing over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.
 
-Note that a company or stock index may not pay all excess profits or earnings as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.
+However, there is another component to price return. Even if the probability distribution of future dividends were not to change over a time interval $[t,t+dt]$, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends. That is risk preferences (and discount rates) themselves change.
+
+In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.
+
+Note that a company or stock fund may not pay all excess profits or earnings as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.
 
 From now on, we will treat dividends as earnings. We assume that earnings as a whole are paid out to the investor as if it were a dividend. After all, the profit at time $t$ is distributed to shareholders one way or another whether it is dividends, buybacks, acquisitions, or reinvestment. It is dangerous to include all of these as "dividend" payments, however it will be simplifying assumption for our model.
 
@@ -50,7 +49,7 @@ where $Q$ is the risk-neutral measure. In fact, one might have some objection to
 
 2. Most likely irrational behavior does play an impact. There are natural periods of the famous "irrational exuberance" and pessimism that cause valuations to move throughout time. 
 
-Even if this point 2 is more of the case, we can assume the "irrational exuberance" or "pessimism" is modeled by the changing risk preference structure of the market. Thus points 1 and 2 are essentially the same. To emphasize that $Q$ is itself time dependent, we write the expectation under $Q$ instead under the true physical measure $P$ with some time dependent stochastic discount factor $m(\cdot,t)$. That is
+Even if point 2 holds, we can assume the "irrational exuberance" or "pessimism" is modeled by the changing risk preference structure of the market. Thus points 1 and 2 are essentially the same. To emphasize that $Q$ is itself time dependent, we write the expectation under $Q$ instead under the true physical measure $P$ with some time dependent stochastic discount factor $m(\cdot,t)$. That is
 
 $$S_t = \int_t^{\infty}  \mathbb{E}^Q [ e^{-r(s-t)} D_s ds | \mathcal{F}_t ] =   \int_t^{\infty} \mathbb{E}^P [ m(s,t) D_s ds | \mathcal{F}_t ]$$
 where $m(s,t)$ the stochastic discount factor (decided by market participants at time $t$) for future payouts at time $s$.
@@ -61,9 +60,9 @@ dm(\cdot,t) = \mu\left(t,m(\cdot,t)\right)dt + \sigma\left(t,m(\cdot,t)\right)dW
 $$
 where $W$ is a Brownian motion over a Hilbert space. Similarly, $D_s(t)$ will represent the random variable associated to the dividend at time $s$ given the filtration $\mathcal{F}_t$ which could be driven by similar functional SDE dynamics.
 
-The problem is that it will be very hard to fit such a model to historical data to try to learn the model. This can be stated simply: I can check the amount paid in dividends in 1930. However, I cannot get the 1930s view on future dividends from historical data. This *might* be *somewhat* possible in more recent years due to the options market allowing one to reconstruct the implied distribution $Q$, however it may be hard to extract the $Q$ distribution for the dividend specifically. Maybe a future project?
+The problem is that it will be very hard to fit such a model to historical data in order to learn the model parameters. This can be stated simply: I can check the amount paid in dividends in 1930. However, I cannot get the 1930s view on future dividends from historical data. This *might* be *somewhat* possible in more recent years due to the options market allowing one to reconstruct the implied distribution $Q$, however it may be hard to extract the $Q$ distribution for the dividend specifically.
 
-We assume a particular form that will allow us to fit the model to past data. We note that this utterly destroys some of the key realistic aspects of the model and can be blamed for the lack of better performance. This is given in the model below. 
+We assume a particular form that will allow us to fit the model to past data. This destroys some of the key realistic aspects of the market. However, this allows us to have an easier model. This is given in the model below. 
 
 - **Model**: Assume the dividend process has the Markovian structure given a Brownian motion $W^D$ of 
 $D_s = D_t \Phi(W^D_{s-t})$ (One example is a classic GBM).  Then we have that 
@@ -74,7 +73,7 @@ where $M_t = \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) \, ds | \mat
 Thus we have that the stock price (in the case of Markovian dividend dynamics) is given by 
 
 $$S_t = M_t D_t.$$
-We can then understand the stock price behavior given a model for $M_t$ and $D_t$. A model for $M_t$ and $D_t$ can be easily attained from the data as they are directly observed. We can also write $S_t = D_t/y_t$ as we have done before.
+We can then understand the stock price behavior given a model for $M_t$ and $D_t$. A model for $M_t$ and $D_t$ can be easily attained from the data as they are directly observed. We model $M_t$ by equivalently modeling its inverse $y_t = \frac{1}{M_t}$.
 
 ## Calculation
 
@@ -140,7 +139,7 @@ First, we assume that we are looking for closed loop feedback form controls that
 
 Assuming that these are the only factors that matter, let us look for the optimal control $\pi_t = \pi(t,y_t)$. We approximate the optimal control by looking for the optimal control in a class of neural networks.
 
-Thus we are solving the following problem. Let $\pi_{NN}(t,y_t;\theta)$ be a neural network with parameters $\theta$ that inputs $(t,y_t)$ and maps it to the fraction portfolio allocation to stocks. Then for this  $\pi_{NN}(\cdot,\cdot;\theta)$ we will get a corresponding distribution of final wealth states $X_T$ for this choice of control. We can then calculate the reward function $E[log(X_T)]$ for this choice of control and then optimize the control by performing gradient ascent on the reward function. 
+Thus we are solving the following problem. Let $\pi_{NN}(t,y_t;\theta)$ be a neural network with parameters $\theta$ that inputs $(t,y_t)$ and maps it to the fraction portfolio allocation to stocks. Then for this  $\pi_{NN}(\cdot,\cdot;\theta)$ we will get a corresponding distribution of final wealth states $X_T$ for this choice of control. We can then calculate the reward function $E[\log(X_T)]$ for this choice of control and then optimize the control by performing gradient ascent on the reward function. 
 
 We will be doing this optimization in PyTorch. First let us create a neural network architecture that takes two inputs $t$ and $y$ and has a single real valued output.
 
@@ -171,7 +170,7 @@ We note that we are actually working with a control that naturally incorporates 
 
 The reason for the leveraged constraint is two-fold: 1). it is a natural requirement from a risk-management perspective. 2). it helps the numerical solutions to be well behaved during training.
 
-From a similar perspective, let us make a critical adjustment to the earnings yield model. The problem with the OU model $dy_t  = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t$ is that $y_t$ can be 0 and even go negative. This would mean that our stock model  $S_t = D_t/y_t$ has issues. To combat this, let's assume an absolute bound on earnings yield. In our model, we will make the maximum PE ratio of the market portfolio to be $200$. This means the earnings yield does not go below $0.5\%$. The new model for $y_t$ will be given by 
+From a similar perspective, let us make a critical adjustment to the earnings yield model. The problem with the OU model $dy_t  = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t$ is that $y_t$ can be 0 and even go negative. This would mean that our stock model  $S_t = D_t/y_t$ has issues. To combat this, let's assume an absolute bound on earnings yield. In our model, we will make the maximum PE ratio of the market portfolio to be $200$. This means the earnings yield does not go below $0.5\%$.
 
 With our neural network portfolio control $\pi_{NN}(t,y_t;\theta)$ defined, let us simulate the dynamics of the wealth process under this choice of portfolio allocation. We will numerically simulate the modified dynamics:
 
@@ -257,7 +256,10 @@ ax.set_ylabel('Loss')
 ax.legend()
 plt.show();
 ```
-Despite employing a finite leverage constraint and a constraint on multiples to be below 200x earnings, the discrete nature of the problem makes it possible that wealth can go negative. In this case, we define the dynamics to be such that if wealth ever goes negative, it is assumed to be $0$ for all time. However, this will make the log undefined so we have to add a very small amount to the loss function so that the log-wealth is always defined even for the training simulations which cause wealth to go to $0$. 
+
+Note that the above training curve indicates a successful training. We will later test and see that the neural network does indeed approximate the Kelly optimal *for this model*!
+
+As for the code, we see that despite employing a finite leverage constraint and a constraint on multiples to be below 200x earnings, the discrete nature of the problem makes it possible that wealth can go negative. In this case, we define the dynamics to be such that if wealth ever goes negative, it is assumed to be $0$ for all time. However, this will make the log undefined so we have to add a very small amount to the loss function so that the log-wealth is always defined even for the training simulations which cause wealth to go to $0$. 
 
 With our trained network, we can now see what the Kelly optimal allocation behaves on some generated data. Keep in mind our adjustments to the dynamics mean that this will not exactly be Kelly for our first proposed model, but a slightly altered model.
 
@@ -310,8 +312,9 @@ with torch.no_grad():
     plt.tight_layout()
     plt.show();
 ```
+The above generated data serves to show possible dynamics of our assumed model as well as how the Kelly optimal allocation behaves with respect to these possible dynamics.
 
-We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is intuitive given the model dynamics which models in mean reversion of PE ratios.
+We see that at higher PE ratios, the Kelly optimal strategy decides to allocate less to the index, while at high PE ratios, the Kelly optimal strategy has a leveraged allocation to the index which is intuitive given the model dynamics which models in mean reversion of PE ratios. Although the model generated data is a useful visualization of what is going on, let us see the rule that the Kelly optimal portfolio allocation learns.
 
 Let's see what the neural network optimal control decides to allocate to equities for a given market multiple. We run this experiment in 3 stages of time. At year 0, at year 5, at year 10.
 
@@ -346,7 +349,7 @@ with torch.no_grad():
 
 Interestingly, we see that the allocation to equities does not depend on time, only PE, as all the curves overlap. This could have been predicted given the myopic property of log utility.
 
-This is a tad bit useful but itself suffers. Keep in mind that the model is not actually realistic. This is a toy problem. Whether this helps an allocator would depend on how true such a model is in reality. 
+Although this offers a solution of how much to allocate for a given PE ratio of the stock index,  keep in mind that this decision making is made in terms of an assumed model of market dynamics! Whether this rule works or not in reality depends on how well the model used to create training data represents real life outcomes. The model that created the training data was highly simplistic. 
 
 Again, the goal here is to illustrate a method for portfolio optimization given a general model. However, how did we know the model actually succeed in finding the actual optimal portfolio? One nice thing about this test problem is that it admits an analytical solution for the Kelly optimal portfolio so we can test whether or not our training was effective!
 
@@ -442,7 +445,7 @@ Then in regards to the model where $S_t = D_t M_t$, one has that the stock price
 
 # An unrealistic test for the SP500
 
-Let's see how the model does on actual data. Since real interest rates are assumed to be $0$ in our model, we will assume that there is no real borrowing cost from a hypothetical lender. This should be included in the model but we will have to train an allocation rule that takes into account interest rates as well as a realistic joint model for interest rates, earnings yield, and earnings that is fitted from the data. So be aware that these are hypothetical experiments given the reality of stock returns but the lie of $0$ real rates.
+Let's see how the model does on actual data. Since real interest rates are assumed to be $0$ in our model, we will assume that there is no real borrowing cost from a hypothetical lender. This should be included in the model but we will have to train an allocation rule that takes into account interest rates as well as a realistic joint model for interest rates, earnings yield, and earnings that is fitted from the data. This can be featured in future work. So be aware that these are hypothetical experiments given the reality of stock returns but the lie of $0$ real rates.
 
 
 
@@ -554,9 +557,11 @@ with torch.no_grad():
     plt.tight_layout();
     plt.show();
 ```
-The key in our model was that earnings was Markov. This essentially means that current earnings is representative of future earnings. In reality you will have periods where earnings are overstated and understated. For example, think of 2009 earnings being nearly $0$ due to the write-downs of assets taken by various companies. These write-downs were a one-off expense and thus earnings in 2009 substantially understated true earnings power of the SP500.
+One feature in our assumed market model is that earnings are Markov. This essentially means that current earnings is representative of future earnings. In reality you will have periods where earnings are overstated and understated. For example, think of 2009 earnings being nearly $0$ due to the write-downs of assets taken by various companies. These write-downs were a one-off expense and thus earnings in 2009 substantially understated true earnings power of the SP500.
 
-Since the underlying model which trains the Kelly allocation rule assumes earnings is Markovian, one might test the portfolio allocation rule using earnings yield estimated from 1/CAPE rather than 1/PE. The reason being is that in real life, we believe PE may at times overstate or understate valuation when the earnings are temporarily overstated or understated. We compare the earnings rule tested on CAPE as well as PE for this reason and compare the wealth processes of Kelly portfolio using CAPE to estimate yield vs Kelly portfolio using PE to estimate yield.
+Since in reality, we see that earnings are not Markov, one might test the portfolio allocation rule using earnings yield estimated from 1/CAPE rather than 1/PE. The reason being is the idea that averaged earnings may better represent the true "earnings power" of the index and thus may be a better version of the earnings induced shareholder yield which we are trying to capture. A potential issue with CAPE is that it itself can underestimate/overestimate the "true" earnings power as averaging over the past 10 years, while removing noise resulting in dramatic overstatement / understatements, will also add in data that may be outdated.
+
+Therefore, we compare the earnings rule tested on CAPE as well as PE for this reason and compare the wealth processes of Kelly portfolio using CAPE to estimate yield vs Kelly portfolio using PE to estimate yield.
 ```{python}
 with torch.no_grad():
     fig, ax = plt.subplots(2, 2, figsize=(8.3,5.5));
@@ -600,7 +605,7 @@ with torch.no_grad():
     plt.show();
 
 ```
-Interestingly, the Kelly portfolio decided from CAPE ratio performs more poorly than that decided from PE ratio. This is true on a Sharpe basis as well and cannot be attributed only due to leverage. This is examined in the final analysis @sec-finalanalysis.
+Interestingly, the Kelly portfolio decided from CAPE ratio performs more poorly than that decided from PE ratio. This is true on a Sharpe basis (see below) as well and cannot be attributed only due to leverage. This is examined in the final analysis @sec-finalanalysis.
 
 Since the CAPE and PE based models have net leverage, let us compare them to a 2x levered SP500 portfolio. This also roughly matches the Kelly optimal leverage for historically fitted SP500 data.
 ```{python}
@@ -627,7 +632,7 @@ sharpe_SP500 = np.mean(returns_SP500)/np.std(returns_SP500)
 #table output
 
 sharpe_ratio_table = {
-    'PE Timing': (sharpe_PE_timing*np.sqrt(12), np.mean(returns_PE_timing)*12, np.std(returns_PE_timing)*np.sqrt(12)),
+    'PE timing': (sharpe_PE_timing*np.sqrt(12), np.mean(returns_PE_timing)*12, np.std(returns_PE_timing)*np.sqrt(12)),
     'CAPE timing': (sharpe_PE10_timing*np.sqrt(12), np.mean(returns_PE10_timing)*12, np.std(returns_PE10_timing)*np.sqrt(12)),
     'SP500': (sharpe_SP500*np.sqrt(12), np.mean(returns_SP500)*12, np.std(returns_SP500)*np.sqrt(12))
 }
@@ -637,15 +642,15 @@ sharpe_table = pd.DataFrame(sharpe_ratio_table.values(), index=sharpe_ratio_tabl
 print(sharpe_table)
 ```
 
-## PE Strategy Superior vs CAPE? Not so fast...
+## A Problem and Adjustment to the PE-based Strategy
 
 One might look and see that the Kelly strategy that made decisions using the PE ratio outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.
 
 What happened? Well, if we look at the data the PE ratio might be "looking into the future". It actually isn't because the decision made at time $t$ is based on the realized earnings as of time $t$. However, the problem is that investors actually don't know the realized earnings at time $t$ due to the reporting cycle of companies. A hypothetical person with full insider information knows the exact earnings at time $t$. However, it is uncertain if real investors actually have this information.
 
-So actually, what if all an investor has is access to the 1 year trailing earnings starting with the realized earnings 3 months ago? Then PE for this investor is estimated from these trailing earnings. Will the PE timing model then outperform that of CAPE?
+So actually, what if all an investor has is access to the 1 year trailing earnings starting with the realized earnings 3 months ago? Assume this investor estimates current PE from these trailing earnings. Will the PE timing model then outperform that of CAPE?
 
-Let's see how it does:
+From the plot below, we see this modified PE to take into account the delay in data availability does still perform well keeping up with the CAPE based approach. However, the outperformance vs CAPE is substantially diminished with this adjusted PE. The risk adjusted returns for the PE based model are still surprisingly higher than the CAPE based model. 
 
 
 ```{python}
@@ -759,7 +764,7 @@ sharpe_SP500 = np.mean(returns_SP500)/np.std(returns_SP500)
 
 #table output
 
-sharpe_ratio_table = {'PE 1yr trailing Timing': (sharpe_PE_timing*np.sqrt(12), np.mean(returns_PE_timing)*12, np.std(returns_PE_timing)*np.sqrt(12)), 'CAPE timing': (sharpe_PE10_timing*np.sqrt(12), np.mean(returns_PE10_timing)*12, np.std(returns_PE10_timing)*np.sqrt(12)), 'SP500': (sharpe_SP500*np.sqrt(12), np.mean(returns_SP500)*12, np.std(returns_SP500)*np.sqrt(12))}
+sharpe_ratio_table = {'PE 1yr trailing Timing': (sharpe_PE_timing*np.sqrt(12), np.mean(returns_PE_timing)*12, np.std(returns_PE_timing)*np.sqrt(12)), 'CAPE timing': (sharpe_PE10_timing*np.sqrt(12), np.mean(returns_PE10_timing)*12, np.std(returns_PE10_timing)*np.sqrt(12)), '100% SP500': (sharpe_SP500*np.sqrt(12), np.mean(returns_SP500)*12, np.std(returns_SP500)*np.sqrt(12))}
 
 sharpe_table = pd.DataFrame(sharpe_ratio_table.values(), index=sharpe_ratio_table.keys(), columns=['Modified Sharpe', 'Mean Return', 'Volatility'])
 
@@ -774,12 +779,13 @@ Interestingly, we see that this model alone has worse performance than the SP500
 
 So why did the model fail? Let's examine a few interesting details:
 
-1. The model was trained to be optimal on an OU process for earnings yield and a GBM for real earnings. If the true dynamics are not adequately captured by this model, then the Kelly portfolio for this fake model will not perform adequately. Moreover, if past parameters differ than those in the future (i.e. if there is a permanently higher valuation demanded by the market for instance), the model is not optimal for this setting.
+1. The model was trained to be optimal on an OU process for earnings yield and a GBM for real earnings. If the true dynamics are not adequately captured by this model, then the Kelly portfolio for this unrealistic model will not perform adequately. Moreover, if past parameters differ than those in the future (i.e. if there is a permanently higher valuation demanded by the market for instance), the model is not optimal for this setting.
 
 2. If the data for earnings does not accurately represent the true earnings power of the SP500 (i.e. overstated or understated) then the model may become too optimistic or too pessimistic at the wrong times. This is especially true when valuations look cheap or expensive for a reason! If the optical valuation does not agree with true valuation, then the model will perform poorly as it allocates based on CAPE.
 
-3. The model exhibited outperformance vs the 2x levered SP500 until around 1990 (see plot below). Substantial changes have happened in this period including: new accounting policies which might make modern CAPEs and PEs seem artificially high compared to their past values, dividend payout policies which can distort data for CAPE and PE, and a rise in corporations which emphasize intangible value and so-called "investing through the balance sheet" meaning that true profitability can be understated. Another part of the change since 1990 has been increased corporate margins causing real earnings growth to exceed its historical average. One might wonder what caused this change-- is it lasting or potentially subject to mean reversion?
+3. The model exhibited outperformance vs the 2x levered SP500 until around 1990. Substantial changes have happened in this period including: new accounting policies which might make modern CAPEs and PEs seem artificially high compared to their past values, dividend payout policies which can distort data for CAPE and PE, and a rise in corporations which emphasize intangible value and so-called "investing through the balance sheet" meaning that true profitability can be understated. Another part of the change since 1990 has been increased corporate margins causing real earnings growth to exceed its historical average. One might wonder what caused this change-- is it lasting or potentially subject to mean reversion?
 
+We can see the underperformance of this model in recent years below. It maintained a minimal SP500 allocation due to perceived high valuation in a period of excellent performance of the SP500. The thing to debate is: did the SP500 do well in terms of total return despite the high valuation or was the high valuation an illusion in this period? Perhaps both?
 
 ```{python}
 with torch.no_grad():
@@ -819,7 +825,7 @@ with torch.no_grad():
 ```
 
 
-4. Periods of substantial underperformance: We mentioned 1990-2021 as a period where these models weren't fully invested as they deemed PE and CAPE too high. This caused the naive 200% portfolio to catch up dramatically. However, there is another period which shows a great failure of this method. From 1915-1920, (see below) the stock market looked very cheap on a PE and CAPE basis (continuing to look cheap on a CAPE basis past 1920). However, there was a dramatic deflationary recession from 1920-1921. Simply put, real earnings exhibited volatility way higher than what the fitted model would expect. The models were basically allocating at max leverage of 300% in this period. This goes to show that a visibly cheap market is still subject to extreme crashes that was not factored in on the model for which the Kelly portfolio strategy was trained. The 1920 real earnings crash may be the reason the market appeared so cheap prior in potential anticipation for such a crash.
+4. Other Periods of substantial underperformance: We mentioned 1990-2021 as a period where these models weren't fully invested as they deemed PE and CAPE too high. This caused the naive 200% portfolio to catch up dramatically. However, there is another period which shows a great failure of this method. From 1915-1920, (see below) the stock market looked very cheap on a PE and CAPE basis (continuing to look cheap on a CAPE basis past 1920). The boom in earnings caused by World War I and subsequent crash in the postwar period was not fully captured by the PE and CAPE ratios. The optically cheap market throughout this period suffered greatly as SP500 real earnings declined significantly, yet the CAPE based model was fully almost at maximum leverage through this period due to the cheapness of the market. Shouldn't the trained model know that something of this sort is possible? Actually this is the problem-- it was trained on a model that vastly understated the possibility of such events. Simply put, real earnings exhibited volatility way higher than what the fitted model would expect. The models were basically allocating at max leverage of 300% in this period. This goes to show that a visibly cheap market is still subject to extreme crashes that was not factored in on the model for which the Kelly portfolio strategy was trained.
 
 ```{python}
 with torch.no_grad():
@@ -858,7 +864,7 @@ with torch.no_grad():
 
 ```
 
-4. (continued) Another period of underperformance was surprisingly the great depression. This is strange as the CAPE was quite high. Let us see why there was underperformance here with the blow below.
+4. (continued) Another period of underperformance was surprisingly the great depression. This is strange as one would think CAPE was quite high prior to the crash so this strategy should have avoided damages! Let us see what happened in this period with the plot below.
 
 ```{python}
 with torch.no_grad():
@@ -897,7 +903,14 @@ with torch.no_grad():
 ```
 The above chart shows another period of failure with the CAPE based model. The surprising thing about this period is that it would be one where you would think the model should exceed. The market top in 1929 was a period of CAPE ratio significantly above its historical mean.
 
-One would think it was good that the CAPE based timing model only had around 25% allocation to equities during 1929-1930. This was indeed good, for those brief moments.
+One would think it was good that the CAPE based timing model only had around 25% allocation to equities during 1929-1930. This was indeed good... for those brief moments.
 
-However, 1931-1932, the valuation started to look really attractive to the CAPE model and it over-leveraged into the last part of the crash. Despite remaining mostly out of the market during the first part of the crash, it's high degree of leverage throughout the second portion actually caused it to underperform the SP500 during this entire 1928 - 1934 time period!
+However, in the 1931-1932 period, the valuation started to look really attractive to the CAPE based timing model and it became highly levered into equities during the last part of the crash. Despite remaining mostly out of the market during the first part of the crash, it's high degree of leverage throughout the second portion actually caused it to underperform the SP500 during this entire 1928 - 1934 time period! There is definitely a lesson to be learned here.
+
+
+# Conclusion
+
+We show how optimal portfolios can be trained using neural networks on various complex models. However, the strength of the trained portfolio depends on the realistic nature of the model on which it is trained. A perfectly realistic model is unachievable as we do not know the true probability distribution of future returns. However, some basic changes can be made to this model to enhance realism. One would be to introduce interest rates in a joint model. The second would be to ensure that adequately large drawdowns appear in the fitted data as much as they should-- this could perhaps be addressed by allowing some positive autocorrelation the earnings variable. Lastly, we may want to include some more fundamental variables. However, with more explanatory variables, one risks a model that is overfitted to the past. 
+
+The beauty of neural network techniques is that the complexity of the model often won't be inhibit the tractability of the numerical problem. However, the modeler must be careful about what models represent fundamental truths and what details may be prone to overfitting. Because of the inability to access the ground truth, other techniques will be needed to address the model risk.
 
