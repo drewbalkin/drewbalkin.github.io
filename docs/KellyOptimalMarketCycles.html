@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>blog - Kelly Optimal In Earnings Driven Financial Market</title>
+<title>blog - Valuation-based Kelly Optimal Portfolios for Market Cycle Investing</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -163,14 +163,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#model-derivation" id="toc-model-derivation" class="nav-link" data-scroll-target="#model-derivation">Model Derivation</a>
   <ul class="collapse">
   <li><a href="#justification-from-a-general-model" id="toc-justification-from-a-general-model" class="nav-link" data-scroll-target="#justification-from-a-general-model">Justification from a General Model</a></li>
-  <li><a href="#calculation" id="toc-calculation" class="nav-link" data-scroll-target="#calculation">Calculation</a>
+  <li><a href="#calculation-of-total-return-process-under-model" id="toc-calculation-of-total-return-process-under-model" class="nav-link" data-scroll-target="#calculation-of-total-return-process-under-model">Calculation of Total Return Process under Model</a>
   <ul class="collapse">
   <li><a href="#comment-on-the-kelly-log-growth-optimal-portfolio" id="toc-comment-on-the-kelly-log-growth-optimal-portfolio" class="nav-link" data-scroll-target="#comment-on-the-kelly-log-growth-optimal-portfolio">Comment on the Kelly / Log / Growth Optimal Portfolio</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#numerical-solution" id="toc-numerical-solution" class="nav-link" data-scroll-target="#numerical-solution">Numerical Solution</a></li>
   <li><a href="#analytical-solution" id="toc-analytical-solution" class="nav-link" data-scroll-target="#analytical-solution">Analytical Solution</a></li>
-  <li><a href="#an-unrealistic-test-for-the-sp500" id="toc-an-unrealistic-test-for-the-sp500" class="nav-link" data-scroll-target="#an-unrealistic-test-for-the-sp500">An unrealistic test for the SP500</a>
+  <li><a href="#a-test-on-sp500-data" id="toc-a-test-on-sp500-data" class="nav-link" data-scroll-target="#a-test-on-sp500-data">A Test on SP500 Data</a>
   <ul class="collapse">
   <li><a href="#a-problem-and-adjustment-to-the-pe-based-strategy" id="toc-a-problem-and-adjustment-to-the-pe-based-strategy" class="nav-link" data-scroll-target="#a-problem-and-adjustment-to-the-pe-based-strategy">A Problem and Adjustment to the PE-based Strategy</a></li>
   </ul></li>
@@ -184,7 +184,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Kelly Optimal In Earnings Driven Financial Market</h1>
+<h1 class="title">Valuation-based Kelly Optimal Portfolios for Market Cycle Investing</h1>
 </div>
 
 
@@ -201,9 +201,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1>Overview</h1>
-<p>This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by a modified Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically showcasing that neural networks can be used to solve similar problems of this form in the case when no analytical solutions exist.</p>
-<p>To make such a model useful, we will have to construct a more realistic model of valuation and impact on return. The first thing we could add is to add interest rates in a joint model with PE ratios. Secondly, a key problem with the model on real world performance are periods where the market looks optically cheap or expensive on a PE-basis, but the reality is the market is cheap or expensive for a reason. In the last section, <a href="#sec-finalanalysis">Section&nbsp;6</a>, we will examine these periods where the model failed.</p>
-<p>The main purpose of this post, therefore, is to highlight a methodology for for how one can a train long-term portfolio optimization model given a model for market dynamics. Future work will include training optimal portfolios against more realistic market models.</p>
+<p>This post finds a Kelly optimal portfolio allocation depending on PE ratio of an underlying stock index. We assume that the earnings of the index as well as the market multiple are exogenous variables described by SDEs. The earnings of the index are driven by a Geometric Brownian Motion, while the earnings yield is driven by a modified Ornstein-Uhlenbeck process with parameters determined from historical data. We construct the Kelly optimal portfolio through neural networks as well as analytically. The impact is two-fold: On one hand we can see how such a portfolio strategy would have done over a long history of SP500 data. On the other hand, and most importantly for future application, we showcase how such a machine learning technique can be used for portfolio optimization and show that it approximates the analytical solution of a given model. This motivates the use of these machine learning techniques to find optimal portfolios for more realistic and sophisticated modeled dynamics.</p>
+<p>To make such a model useful, we will have to construct a more realistic model of valuation and impact on return. The first thing we could add is to add interest rates in a joint model with PE ratios. Secondly, a key problem with the model on real world performance are periods where the market looks optically cheap or expensive on a PE-basis, but the reality is the market is cheap or expensive for a reason. In the last section, <a href="#sec-finalanalysis">Section&nbsp;6</a>, we will examine these periods where the suggested optimal portfolio performed poorly and analyze the source of this failure to motivate future work.</p>
+<p>The main purpose of this post, therefore, is to highlight a methodology for how one can train long-term portfolio optimization model given a model for market dynamics. Future work will include training optimal portfolios against more realistic market models.</p>
 </section>
 <section id="model-derivation" class="level1">
 <h1>Model Derivation</h1>
@@ -212,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The probability distribution of future dividends changes.</li>
 <li>The risk preferences of investors change.</li>
 </ol>
-<p>In terms of total return, the first component is from directly receiving the random stochastic payments given by the process <span class="math inline">\((D_t)\)</span>, and the remaing return is the price price return.</p>
+<p>In terms of total return, the first component is from directly receiving the random stochastic payments given by the process <span class="math inline">\((D_t)\)</span>, and the remaining return is the price price return.</p>
 <p>One component of price return is due to the probabilistic future stream of dividends changing over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.</p>
 <p>However, there is another component to price return. Even if the probability distribution of future dividends were not to change over a time interval <span class="math inline">\([t,t+dt]\)</span>, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends. That is risk preferences (and discount rates) themselves change.</p>
 <p>In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.</p>
@@ -228,7 +228,7 @@ dy_t = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t
 <p>We can think of our ownership of a stock at time <span class="math inline">\(t\)</span> as a claim on the future dividends <span class="math inline">\((D_s)_{s \geq t}\)</span>, where the amount <span class="math inline">\(D_s ds\)</span> per share is paid to the stockholder’s over time <span class="math inline">\([s,s+ds]\)</span>.Therefore, we can understand the price of the stock as the present value of all future dividends:</p>
 <p><span class="math display">\[S_t = \int_t^{\infty}  \mathbb{E}^Q [ e^{-r(s-t)} D_s ds ],\]</span> where <span class="math inline">\(Q\)</span> is the risk-neutral measure. In fact, one might have some objection to the above in that the dividends aren’t themselves hedgeable claims (outside of the corresponding stock which we are trying to price!). This is not really a problem as the above pricing need not arise from an arbitrage pricing arguement (see <a href="./logoptimal3.html">part 3 of my blog post on indifference pricing with the log-optimal portfolio</a> for instance). What is true is that <span class="math inline">\(Q\)</span> represents the discounting for risk of the dividend streams and hence its existence can be viewed from the markets desired risk preferences.</p>
 <ol type="1">
-<li><p>However the risk preferences themselves can change over time. We don’t then need to use irrational behavior to then describe changes in valuation over time.</p></li>
+<li><p>However, the risk preferences themselves can change over time. We don’t then need to use irrational behavior to then describe changes in valuation over time.</p></li>
 <li><p>Most likely irrational behavior does play an impact. There are natural periods of the famous “irrational exuberance” and pessimism that cause valuations to move throughout time.</p></li>
 </ol>
 <p>Even if point 2 holds, we can assume the “irrational exuberance” or “pessimism” is modeled by the changing risk preference structure of the market. Thus points 1 and 2 are essentially the same. To emphasize that <span class="math inline">\(Q\)</span> is itself time dependent, we write the expectation under <span class="math inline">\(Q\)</span> instead under the true physical measure <span class="math inline">\(P\)</span> with some time dependent stochastic discount factor <span class="math inline">\(m(\cdot,t)\)</span>. That is</p>
@@ -239,13 +239,18 @@ dm(\cdot,t) = \mu\left(t,m(\cdot,t)\right)dt + \sigma\left(t,m(\cdot,t)\right)dW
 <p>The problem is that it will be very hard to fit such a model to historical data in order to learn the model parameters. This can be stated simply: I can check the amount paid in dividends in 1930. However, I cannot get the 1930s view on future dividends from historical data. This <em>might</em> be <em>somewhat</em> possible in more recent years due to the options market allowing one to reconstruct the implied distribution <span class="math inline">\(Q\)</span>, however it may be hard to extract the <span class="math inline">\(Q\)</span> distribution for the dividend specifically.</p>
 <p>We assume a particular form that will allow us to fit the model to past data. This destroys some of the key realistic aspects of the market. However, this allows us to have an easier model. This is given in the model below.</p>
 <ul>
-<li><strong>Model</strong>: Assume the dividend process has the Markovian structure given a Brownian motion <span class="math inline">\(W^D\)</span> of <span class="math inline">\(D_s = D_t \Phi(W^D_{s-t})\)</span> (One example is a classic GBM). Then we have that <span class="math display">\[S_t =   \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_s ds | \mathcal{F}_t ] = \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_t \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ]  \]</span> <span class="math display">\[    = D_t \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ] = D_t M_t,\]</span> where <span class="math inline">\(M_t = \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) \, ds | \mathcal{F}_t ]\)</span> is the multiple that the market is putting on the current dividend to determine the current stock price. This can always be done artificially. What gives this more meaning is the fact that while <span class="math inline">\(m(t,s)\)</span> does depend on <span class="math inline">\((W^D_{u})_{u \geq t}\)</span> (this is what makes it a <em>stochastic</em> discount factor after all), it should not depend on the absolute dividend level <span class="math inline">\(D_t\)</span>.</li>
+<li><strong>Model</strong>: Assume the dividend process has the Markovian structure given a Brownian motion <span class="math inline">\(W^D\)</span> of <span class="math inline">\(D_s = D_t \Phi(W^D_{s-t})\)</span> (One example is a classic GBM). Then we have that <span class="math display">\[S_t =   \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_s ds | \mathcal{F}_t ] = \int_t^{\infty} \mathbb{E}^P [ m(t,s) D_t \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ]  \]</span> <span class="math display">\[    = D_t \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) ds | \mathcal{F}_t ] = D_t M_t,\]</span> where <span class="math inline">\(M_t = \int_t^{\infty} \mathbb{E}^P [ m(t,s) \Phi(W^D_{s-t} ) \, ds | \mathcal{F}_t ]\)</span> is the multiple that the market is putting on the current dividend to determine the current stock price. Removing <span class="math inline">\(D_t\)</span> can always be done artificially. However, we see that <span class="math inline">\(M_t\)</span> itself does not depend on the absolute level of <span class="math inline">\(D_t\)</span>. while <span class="math inline">\(m(t,s)\)</span> does depend on <span class="math inline">\((W^D_{u})_{u \geq t}\)</span> (this is what makes it a <em>stochastic</em> discount factor after all), we see it does not depend on the absolute dividend level <span class="math inline">\(D_t\)</span>.</li>
 </ul>
 <p>Thus we have that the stock price (in the case of Markovian dividend dynamics) is given by</p>
 <p><span class="math display">\[S_t = M_t D_t.\]</span> We can then understand the stock price behavior given a model for <span class="math inline">\(M_t\)</span> and <span class="math inline">\(D_t\)</span>. A model for <span class="math inline">\(M_t\)</span> and <span class="math inline">\(D_t\)</span> can be easily attained from the data as they are directly observed. We model <span class="math inline">\(M_t\)</span> by equivalently modeling its inverse <span class="math inline">\(y_t = \frac{1}{M_t}\)</span>.</p>
 </section>
-<section id="calculation" class="level2">
-<h2 class="anchored" data-anchor-id="calculation">Calculation</h2>
+<section id="calculation-of-total-return-process-under-model" class="level2">
+<h2 class="anchored" data-anchor-id="calculation-of-total-return-process-under-model">Calculation of Total Return Process under Model</h2>
+<p>Recall our assumed model for the dividends and dividend yield of the stock index is given by:</p>
+<p><span class="math display">\[\begin{align}
+dD_t = \mu_D D_t dt + \sigma_D D_t dW^D_t, \\
+dy_t = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t.
+\end{align}\]</span></p>
 <p>We assume for now that the Brownian motions <span class="math inline">\(W^D,W^y\)</span> are independent although this is not entirely representative of reality. The model parameters <span class="math inline">\(\mu_D,\sigma_D,\theta,y_{eq},\sigma_y\)</span> will eventually be calibrated to Shiller’s data for SP500 earnings.</p>
 <p>From our exogenous dividend and dividend yield processes, we have an endogenous stock price process as <span class="math inline">\(S_t = \frac{D_t}{y_t} = D_t M_t\)</span>. Now we can model our full problem. Let <span class="math inline">\(X_t\)</span> be the investor’s wealth at time and <span class="math inline">\(\pi_t\)</span> be the fraction of wealth in which the investor invests in the stock index.</p>
 <p>Over time <span class="math inline">\([t,t+dt]\)</span> the investor will receive dividends equal to the amount of <span class="math inline">\(\pi_t X_t y_t dt\)</span> as they have <span class="math inline">\(\pi_t X_t\)</span> invested in the stock which has a dividend yield of <span class="math inline">\(y_t\)</span>. What is meant by dividend yield here is the instantaneous dividend yield. If <span class="math inline">\(t\)</span> is measured in years where <span class="math inline">\(t=1\)</span> for instance is 1 year, then the annualized dividend yield. The second aspect of P&amp;L over <span class="math inline">\([t,t+dt]\)</span> is given by the change in stock price– the price return. The price return consists of price change due to dividend change and also market multiple changes. Simply however, we can calculate it as follows. The stock price return is <span class="math inline">\(\frac{dS_t}{S_t}\)</span> and <span class="math inline">\(\pi_t X_t\)</span> is invested in the stock so the P&amp;L from stock price change is given by <span class="math inline">\(\pi_t X_t \frac{dS_t}{S_t}\)</span>. Adding these two components of P&amp;L together we get that <span class="math inline">\(dX_t = \pi_t X_t y_t dt + \pi_t X_t \frac{dS_t}{S_t}\)</span>.</p>
@@ -254,38 +259,38 @@ dm(\cdot,t) = \mu\left(t,m(\cdot,t)\right)dt + \sigma\left(t,m(\cdot,t)\right)dW
 <p><span class="math display">\[dX_t = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} + \frac{dD_t d(1/y_t)}{D_t/y_t} \right) \]</span></p>
 <p>The last term is <span class="math inline">\(0\)</span> as we assume <span class="math inline">\(dW^D_t dW^y_t = 0\)</span>. We note that for some models may want to consider a correlation for these variables, but our main concern is simplicity. Thus we get</p>
 <p><span class="math display">\[\frac{dX_t}{X_t} = \pi_t \left( y_t dt + \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right) \]</span></p>
-<p>This expression is very intuitive: it says that the components of stock return are dividend yield + dividend growth (or decay) + change in multiple.</p>
-<p>Suppose an investor has utility function <span class="math inline">\(U\)</span> which will not change for them over the course of their lifetime. That is unlike the market, the investor will not vary his risk preferences through time. We can then consider the utility maximization problem given in terms of a controlled SDE– this is a typical stochastic optimal control problem.</p>
+<p>This expression provides an intuitive understanding of stock return, which consists of three components: dividend yield, dividend growth (or decay), and changes in the multiple.</p>
+<p>Suppose an investor has utility function <span class="math inline">\(U\)</span> which will not change for them over the course of their lifetime. That is unlike the market, the investor will not vary his risk preferences through time. We can then consider the utility maximization problem given in terms of a controlled SDE, i.e.&nbsp;this is simply a typical stochastic optimal control problem of the form:</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
-dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right)\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t, \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t,\\
+dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right),\\
 \end{align}\]</span></p>
-<p><span class="math display">\[\max_{\pi} E[U(X_T)]\]</span></p>
-<p>for some utility function <span class="math inline">\(U\)</span>. We will consider the Kelly optimal portfolio allocation given by taking <span class="math inline">\(U\)</span> to be <span class="math inline">\(\log(\cdot)\)</span>.</p>
+<p><span class="math display">\[\pi^* = \arg \max_{\pi} E[U(X_T)],\]</span></p>
+<p>for some utility function <span class="math inline">\(U\)</span>. We will consider the portfolio allocation that maximizes long-term growth rate, often known as the Kelly criterion, by taking <span class="math inline">\(U\)</span> to be <span class="math inline">\(\log(\cdot)\)</span>.</p>
 <section id="comment-on-the-kelly-log-growth-optimal-portfolio" class="level3">
 <h3 class="anchored" data-anchor-id="comment-on-the-kelly-log-growth-optimal-portfolio">Comment on the Kelly / Log / Growth Optimal Portfolio</h3>
-<p>The nice thing about the Kelly optimal portfolio <span class="math inline">\(\pi^*\)</span> (the portfolio that maximizes log-wealth) is that it has the property that <span class="math inline">\(P\left( \lim_{T \rightarrow \infty} \left(\frac{V^{\pi^*}_T}{V^{\pi}_T}\right)^{1/T} \geq 1\right) = 1\)</span> for all other portfolios <span class="math inline">\(\pi\)</span>. This is not true just for the Black-Scholes model, but actually fairly generic models (including the one we have introduced above).</p>
-<p>Essentially, this means this portfolio strategy has corresponding wealth processes that almost surely long-term beats any other portfolio.</p>
-<p>This is indeed a nice property but it doesn’t mean that the Kelly strategy is the <em>right</em> strategy. For example, how long is long-term?</p>
-<p>To me, the idea of Kelly portfolios is not useful because it is <em>the</em> correct strategy (it definitely depends on each person!), but is a useful base-point for which investors can orient themselves around.</p>
-<p>The second problem with Kelly portfolios and utility optimization in general is that it provides results that are subject to a great deal of model risk– the idea that the true distribution of future returns is different than the underlying model.</p>
+<p>One appealing feature of the Kelly-optimal portfolio <span class="math inline">\(\pi^*\)</span> (i.e.&nbsp;that which maximizes log-wealth) is that given any other portfolio <span class="math inline">\(\pi\)</span>, the CAGR of the Kelly-optimal portfolio <span class="math inline">\(\pi^*\)</span> will be larger than that <span class="math inline">\(\pi\)</span> given a long enough time horizon. To state this formally, we have that <span class="math inline">\(P\left( \lim{T \rightarrow \infty} \left(\frac{V^{\pi^*}_T}{V^{\pi}_T}\right)^{1/T} \geq 1\right) = 1\)</span>. The reason being is that due to time averaging, the realized CAGR will approach the expected CAGR– which was maximized for this given portfolio. This is not true just for the Black-Scholes model for stock dynamics, but holds for fairly generic models including the one we have introduced above.</p>
+<p>This is indeed is a nice property, but it doesn’t mean that the Kelly strategy is the <em>right</em> strategy. For example, how long is long-term?</p>
+<p>To me, the idea of Kelly portfolios is not useful because it is <em>the</em> correct strategy (it definitely depends on each person what a correct strategy would be!), but is a useful base-point for which investors can orient themselves around.</p>
+<p>The second problem with Kelly portfolios and utility optimization in general is that it provides results that are subject to a great deal of model risk– that is risk that arises from the fact that the true distribution of future returns is different than that assumed by the underlying model. The model risk of our assumed model will be evident when it is tested on actual SP500 data. See <a href="#sec-finalanalysis">Section&nbsp;6</a> to see particular periods where the Kelly portfolio failed miserably. In essence, this section is a commentary on the realization of (downside) model risk.</p>
 </section>
 </section>
 </section>
 <section id="numerical-solution" class="level1">
 <h1>Numerical Solution</h1>
-<p>We wish to solve the stochastic optimal control problem:</p>
+<p>At this point, we would like to solve the stochastic optimal control problem:</p>
 <p><span class="math display">\[\begin{align}
-dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t \\
-dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t\\
+dD_t &amp; = \mu_D D_t dt + \sigma_D D_t dW^D_t, \\
+dy_t &amp; = -\theta(y_t-y_{eq})dt + \sigma_y dW^y_t,\\
 dX_t &amp; = \pi_t X_t \left( y_t dt +  \frac{dD_t}{D_t} +  \frac{d(1/y_t)}{1/y_t} \right),\\
 \end{align}\]</span></p>
-<p><span class="math display">\[\max_{\pi} \mathbb{E} [\log(X_T)].\]</span> At first glance, this seems rather messy and unlikely to admit an analytical solution. What can we do to solve such a problem?</p>
+<p><span class="math display">\[\pi^* = \arg \max_{\pi} \mathbb{E} [\log(X_T)].\]</span> At first glance, this seems rather messy and unlikely to admit an analytical solution. At second glance, you might know some tricks. Assuming we don’t know any tricks, what can we do to solve such a problem?</p>
 <p>One simple technique is to solve the stochastic optimal control problem with neural networks. Essentially, we take the control <span class="math inline">\(\pi_t\)</span> to be a neural network which inputs the known information at time <span class="math inline">\(t\)</span> and outputs a proposed portfolio allocation to the stock fund. The loss function is then taken to be a numerical estimate of <span class="math inline">\(-\mathbb{E} [\log(X_T)]\)</span> which is used to train the neural network.</p>
-<p>First, we assume that we are looking for closed loop feedback form controls that is <span class="math inline">\(\pi_t = \pi(D_t,y_t,X_t,t)\)</span>. In other words, we decide our portfolio allocation based on the current state of our wealth, the dividend, and dividend yield, and the current time. Logically, we should expect to see that in reality <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. That is the only relevant information to decide the portfolio allocation should be the current time <span class="math inline">\(t\)</span> (because the model ends at time <span class="math inline">\(T\)</span>) and the current dividend yield <span class="math inline">\(y_t\)</span> as we decide whether we think stocks are expensive or not, as well as how important that is to the portfolio allocation. Since we are calculating the expected value of the <span class="math inline">\(\log(\cdot)\)</span>, a myopic utility function, it will turn out the true optimal portfolio does not depend on time <span class="math inline">\(t\)</span>, but only dividend yield <span class="math inline">\(y_t\)</span>. However, for our numerical approach, this is not necessary and we can pretend we did not know any better.</p>
-<p>Assuming that these are the only factors that matter, let us look for the optimal control <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. We approximate the optimal control by looking for the optimal control in a class of neural networks.</p>
-<p>Thus we are solving the following problem. Let <span class="math inline">\(\pi_{NN}(t,y_t;\theta)\)</span> be a neural network with parameters <span class="math inline">\(\theta\)</span> that inputs <span class="math inline">\((t,y_t)\)</span> and maps it to the fraction portfolio allocation to stocks. Then for this <span class="math inline">\(\pi_{NN}(\cdot,\cdot;\theta)\)</span> we will get a corresponding distribution of final wealth states <span class="math inline">\(X_T\)</span> for this choice of control. We can then calculate the reward function <span class="math inline">\(E[\log(X_T)]\)</span> for this choice of control and then optimize the control by performing gradient ascent on the reward function.</p>
+<p>First, we assume that we are looking for closed loop feedback form controls that is <span class="math inline">\(\pi_t = \pi(D_t,y_t,X_t,t)\)</span>. In other words, we decide our portfolio allocation based on the current state of our wealth, the dividend, and dividend yield, and the current time. Logically, we should expect to see that in reality <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. That is the only relevant information to decide the portfolio allocation should be the current time <span class="math inline">\(t\)</span> and the current dividend yield <span class="math inline">\(y_t\)</span> as we decide whether we think stocks are expensive or not. Since we are calculating the expected value of the <span class="math inline">\(\log(\cdot)\)</span>, a myopic utility function, it will turn out the true optimal portfolio does not depend on time <span class="math inline">\(t\)</span>, but only dividend yield <span class="math inline">\(y_t\)</span>. However, for our numerical approach, this is not necessary and we can pretend we did not know any better. In fact, we could to be safe, have the control be a function of all the variables <span class="math inline">\((D_t,y_t,X_t,t)\)</span> and the technique will work just as well.</p>
+<p>However, assuming only that the current time <span class="math inline">\(t\)</span> and the current dividend yield <span class="math inline">\(y_t\)</span> are the only factors that matter, let us look for the optimal control <span class="math inline">\(\pi_t = \pi(t,y_t)\)</span>. We approximate the optimal control by looking for the optimal control in a class of neural networks.</p>
+<p>Thus we are solving the following problem:</p>
+<p>Let <span class="math inline">\(\pi_{NN}(t,y_t;\theta)\)</span> be a neural network with parameters <span class="math inline">\(\theta\)</span> that inputs <span class="math inline">\((t,y_t)\)</span> and maps it to the fraction portfolio allocation to stocks. Then for this <span class="math inline">\(\pi_{NN}(\cdot,\cdot;\theta)\)</span>, we will get a corresponding distribution of final wealth states <span class="math inline">\(X_T\)</span> for this choice of control. We can then calculate the reward function <span class="math inline">\(E[\log(X_T)]\)</span> for this choice of control and then optimize the control by performing gradient ascent on the reward function.</p>
 <p>We will be doing this optimization in PyTorch. First let us create a neural network architecture that takes two inputs <span class="math inline">\(t\)</span> and <span class="math inline">\(y\)</span> and has a single real valued output.</p>
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -446,7 +451,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="780" height="516"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="785" height="516"></p>
 </div>
 </div>
 <p>The above generated data serves to show possible dynamics of our assumed model as well as how the Kelly optimal allocation behaves with respect to these possible dynamics.</p>
@@ -559,8 +564,8 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <p><span class="math inline">\(dM_t = -\theta_M(M_t - M_{eq})dt + \sigma_M M_t dW^M_t.\)</span></p>
 <p>Then in regards to the model where <span class="math inline">\(S_t = D_t M_t\)</span>, one has that the stock price variance is simply <span class="math inline">\(\sigma_D^2 + \sigma_M^2\)</span> and thus the stock has constant volatility for all valuations while the mean return would vary depending on valuations due to the component of mean return due to mean-reversion of multiples.</p>
 </section>
-<section id="an-unrealistic-test-for-the-sp500" class="level1">
-<h1>An unrealistic test for the SP500</h1>
+<section id="a-test-on-sp500-data" class="level1">
+<h1>A Test on SP500 Data</h1>
 <p>Let’s see how the model does on actual data. Since real interest rates are assumed to be <span class="math inline">\(0\)</span> in our model, we will assume that there is no real borrowing cost from a hypothetical lender. This should be included in the model but we will have to train an allocation rule that takes into account interest rates as well as a realistic joint model for interest rates, earnings yield, and earnings that is fitted from the data. This can be featured in future work. So be aware that these are hypothetical experiments given the reality of stock returns but the lie of <span class="math inline">\(0\)</span> real rates.</p>
 <div class="cell" data-execution_count="6">
 <details>
@@ -760,7 +765,7 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'PE timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)),</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)),</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'100% SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))</span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>sharpe_table <span class="op">=</span> pd.DataFrame(sharpe_ratio_table.values(), index<span class="op">=</span>sharpe_ratio_table.keys(), columns<span class="op">=</span>[<span class="st">'Modified Sharpe'</span>, <span class="st">'Mean Return'</span>, <span class="st">'Volatility'</span>])</span>
@@ -769,9 +774,9 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Modified Sharpe  Mean Return  Volatility
-PE timing           0.531407     0.157440    0.296270
-CAPE timing         0.479398     0.146838    0.306297
-SP500               0.547833     0.077775    0.141969</code></pre>
+PE timing           0.534494     0.161748    0.302620
+CAPE timing         0.479514     0.149249    0.311251
+100% SP500          0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
 <section id="a-problem-and-adjustment-to-the-pe-based-strategy" class="level2">
@@ -779,7 +784,7 @@ SP500               0.547833     0.077775    0.141969</code></pre>
 <p>One might look and see that the Kelly strategy that made decisions using the PE ratio outperformed that based on CAPE. This seemed surprising in that PE should be understated and overstated in certain times.</p>
 <p>What happened? Well, if we look at the data the PE ratio might be “looking into the future”. It actually isn’t because the decision made at time <span class="math inline">\(t\)</span> is based on the realized earnings as of time <span class="math inline">\(t\)</span>. However, the problem is that investors actually don’t know the realized earnings at time <span class="math inline">\(t\)</span> due to the reporting cycle of companies. A hypothetical person with full insider information knows the exact earnings at time <span class="math inline">\(t\)</span>. However, it is uncertain if real investors actually have this information.</p>
 <p>So actually, what if all an investor has is access to the 1 year trailing earnings starting with the realized earnings 3 months ago? Assume this investor estimates current PE from these trailing earnings. Will the PE timing model then outperform that of CAPE?</p>
-<p>From the plot below, we see this modified PE to take into account the delay in data availability does still perform well keeping up with the CAPE based approach. However, the outperformance vs CAPE is substantially diminished with this adjusted PE. The risk adjusted returns for the PE based model are still surprisingly higher than the CAPE based model.</p>
+<p>From the plot below, we see this modified PE to take into account the delay in data availability does still perform well keeping up with the CAPE based approach. However, the outperformance vs CAPE is substantially diminished with this adjusted PE.</p>
 <div class="cell" data-execution_count="11">
 <details>
 <summary>Code</summary>
@@ -893,7 +898,7 @@ SP500               0.547833     0.077775    0.141969</code></pre>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#table output</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {<span class="st">'PE 1yr trailing Timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'100% SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))}</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {<span class="st">'PE 1yr trailing Timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE1_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE1_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'100% SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))}</span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>sharpe_table <span class="op">=</span> pd.DataFrame(sharpe_ratio_table.values(), index<span class="op">=</span>sharpe_ratio_table.keys(), columns<span class="op">=</span>[<span class="st">'Modified Sharpe'</span>, <span class="st">'Mean Return'</span>, <span class="st">'Volatility'</span>])</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
@@ -901,8 +906,8 @@ SP500               0.547833     0.077775    0.141969</code></pre>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                        Modified Sharpe  Mean Return  Volatility
-PE 1yr trailing Timing         0.531407     0.157440    0.296270
-CAPE timing                    0.479398     0.146838    0.306297
+PE 1yr trailing Timing         0.534494     0.151471    0.306737
+CAPE timing                    0.479514     0.149249    0.311251
 100% SP500                     0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
@@ -956,7 +961,7 @@ CAPE timing                    0.479398     0.146838    0.306297
 <span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="787" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="791" height="548"></p>
 </div>
 </div>
 <ol start="4" type="1">
@@ -1052,8 +1057,8 @@ CAPE timing                    0.479398     0.146838    0.306297
 </section>
 <section id="conclusion" class="level1">
 <h1>Conclusion</h1>
-<p>We show how optimal portfolios can be trained using neural networks on various complex models. However, the strength of the trained portfolio depends on the realistic nature of the model on which it is trained. A perfectly realistic model is unachievable as we do not know the true probability distribution of future returns. However, some basic changes can be made to this model to enhance realism. One would be to introduce interest rates in a joint model. The second would be to ensure that adequately large drawdowns appear in the fitted data as much as they should– this could perhaps be addressed by allowing some positive autocorrelation the earnings variable. Lastly, we may want to include some more fundamental variables. However, with more explanatory variables, one risks a model that is overfitted to the past.</p>
-<p>The beauty of neural network techniques is that the complexity of the model often won’t be inhibit the tractability of the numerical problem. However, the modeler must be careful about what models represent fundamental truths and what details may be prone to overfitting. Because of the inability to access the ground truth, other techniques will be needed to address the model risk.</p>
+<p>We show how optimal portfolios can be trained using neural networks, motivating its application to more realistic and complex models without known solutions. However, the strength of the trained portfolio depends on the realistic nature of the model on which it is trained. A perfectly realistic model is unachievable as we do not know the true probability distribution of future returns. However, some basic changes can be made to this model to enhance realism. One would be to introduce interest rates in a joint model. A second would be to ensure that adequately large drawdowns appear in the fitted data as much as they should. Lastly, we may want to include other fundamental variables such as profit margins and perhaps add in lagged effects. However, by including more explanatory variables, one risks building a model that is overfitted to the past.</p>
+<p>The beauty of neural network techniques is that the complexity of the underyling model problem often won’t inhibit the tractability of solving it with machine learning. However, the modeler must be careful about what models represent fundamental truths and what model features may lead to overfitting against idiosyncratic past behavior. Because of the inability to access the ground truth, other techniques will be needed to address the model risk.</p>
 
 
 </section>
