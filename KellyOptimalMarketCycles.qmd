@@ -18,14 +18,12 @@ Suppose we have a stock or fund with price at time $t$ given by $S_t$. The price
 1. The probability distribution of future dividends changes.
 2. The risk preferences of investors change.
 
+The total return of owning the stock fund is decided by one additional factor:
 
-In terms of total return, the first component is from directly receiving the random stochastic payments given by the process $(D_t)$, and the remaining return is the price price return.
+3. The distribution of dividends over time.
 
-One component of price return is due to the probabilistic future stream of dividends changing over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.
 
-However, there is another component to price return. Even if the probability distribution of future dividends were not to change over a time interval $[t,t+dt]$, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends. That is risk preferences (and discount rates) themselves change.
-
-In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.
+In our model, we will model the 1st component of returns by modelling the dividend process, the 2nd component by a market multiple process, and the 3rd through the actual payment of dividends. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.
 
 Note that a company or stock fund may not pay all excess profits or earnings as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.
 
@@ -559,6 +557,7 @@ with torch.no_grad():
     #plt.figure(4);
     ax[1,0].set_title('Kelly Stock Allocation');
     ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'m');
+    ax[1,0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();
@@ -606,6 +605,7 @@ with torch.no_grad():
     #plt.figure(4);
     ax[1,0].set_title('Kelly Stock Allocations');
     ax[1,0].plot(t[index_start:-1],pi_plt[index_start:],'y',t[index_start:-1],piPE10_plt[index_start:],'c');
+    ax[1,0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();
@@ -771,7 +771,7 @@ sharpe_SP500 = np.mean(returns_SP500)/np.std(returns_SP500)
 
 #table output
 
-sharpe_ratio_table = {'PE 1yr trailing Timing': (sharpe_PE_timing*np.sqrt(12), np.mean(returns_PE1_timing)*12, np.std(returns_PE1_timing)*np.sqrt(12)), 'CAPE timing': (sharpe_PE10_timing*np.sqrt(12), np.mean(returns_PE10_timing)*12, np.std(returns_PE10_timing)*np.sqrt(12)), '100% SP500': (sharpe_SP500*np.sqrt(12), np.mean(returns_SP500)*12, np.std(returns_SP500)*np.sqrt(12))}
+sharpe_ratio_table = {'PE 1yr trailing Timing': (sharpe_PE1_timing*np.sqrt(12), np.mean(returns_PE1_timing)*12, np.std(returns_PE1_timing)*np.sqrt(12)), 'CAPE timing': (sharpe_PE10_timing*np.sqrt(12), np.mean(returns_PE10_timing)*12, np.std(returns_PE10_timing)*np.sqrt(12)), '100% SP500': (sharpe_SP500*np.sqrt(12), np.mean(returns_SP500)*12, np.std(returns_SP500)*np.sqrt(12))}
 
 sharpe_table = pd.DataFrame(sharpe_ratio_table.values(), index=sharpe_ratio_table.keys(), columns=['Modified Sharpe', 'Mean Return', 'Volatility'])
 
@@ -823,6 +823,7 @@ with torch.no_grad():
     #plt.figure(4);
     ax[1,0].set_title('Kelly Allocation');
     ax[1,0].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],'c');
+    ax[1,0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();
@@ -863,6 +864,7 @@ with torch.no_grad():
     #plt.figure(4);
     ax[1,0].set_title('Kelly Allocation');
     ax[1,0].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],'c');
+    ax[1,0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();
@@ -901,6 +903,7 @@ with torch.no_grad():
     #plt.figure(4);
     ax[1,0].set_title('Kelly Allocation');
     ax[1,0].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],'c');
+    ax[1,0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
     
     plt.subplots_adjust(hspace=0.7, wspace=0.15);
     plt.tight_layout();

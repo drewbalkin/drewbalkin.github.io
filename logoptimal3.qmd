@@ -56,7 +56,7 @@ That's exciting!!! But wait... not really. Not everyone is a log utility investo
 
 # The Big Result
 
-We haven't yet used the CRRA utility property. What we will show is that for  is for all CRRA investors, we have that $\chi_0(\gamma) = \chi_0(0)$. That is the indifference price is the same for all assets. Moreover, this indifference price is given by:
+We haven't yet used the CRRA utility property. What we will show is that for  is for all CRRA investors, we have that $\chi_0(\gamma) = \chi_0(0)$. That is the indifference price is the same for investors. Moreover, this indifference price is given by:
 
 $$\chi_0(\gamma) = \mathbb{E} \left[\frac{\chi_T}{V^{\pi^*}_T} \right],$$
 

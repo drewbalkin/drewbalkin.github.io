@@ -212,10 +212,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The probability distribution of future dividends changes.</li>
 <li>The risk preferences of investors change.</li>
 </ol>
-<p>In terms of total return, the first component is from directly receiving the random stochastic payments given by the process <span class="math inline">\((D_t)\)</span>, and the remaining return is the price price return.</p>
-<p>One component of price return is due to the probabilistic future stream of dividends changing over time. That is the outlook changes so the probability distribution of these dividends change as well. This causes a price change as the market reacts to how the dividend changes throughout time.</p>
-<p>However, there is another component to price return. Even if the probability distribution of future dividends were not to change over a time interval <span class="math inline">\([t,t+dt]\)</span>, it is still possible that the market is willing to change its mind and pay a different price for this exact same stream of future dividends. That is risk preferences (and discount rates) themselves change.</p>
-<p>In our model, we will model the first component through the actual payment of dividends, the second component by modelling the dividend process, and the third component by a market multiple process. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.</p>
+<p>The total return of owning the stock fund is decided by one additional factor:</p>
+<ol start="3" type="1">
+<li>The distribution of dividends over time.</li>
+</ol>
+<p>In our model, we will model the 1st component of returns by modelling the dividend process, the 2nd component by a market multiple process, and the 3rd through the actual payment of dividends. This corresponds to the three components of total stock return: dividends, dividend growth/decay, and market multiple changes.</p>
 <p>Note that a company or stock fund may not pay all excess profits or earnings as dividends. Other options are buybacks, acquisitions, or reinvestment. As for buybacks, we can treat this exactly the same as a reinvested dividend so we can pretend that buybacks are simply a part of the dividend distribution. The other two are not and would affect the dividend growth rate. However, if we assume that acquisitions / reinvestment is done at a similar rate of return as compared to owning the security, we can just assume earnings are just glorified dividends with respect to our model.</p>
 <p>From now on, we will treat dividends as earnings. We assume that earnings as a whole are paid out to the investor as if it were a dividend. After all, the profit at time <span class="math inline">\(t\)</span> is distributed to shareholders one way or another whether it is dividends, buybacks, acquisitions, or reinvestment. It is dangerous to include all of these as “dividend” payments, however it will be simplifying assumption for our model.</p>
 <p>In this model, we will have a stock index whose profits (or dividends by our assumption) at time <span class="math inline">\(t\)</span> is given by the process <span class="math inline">\(D_t\)</span> where <span class="math inline">\(D_tdt\)</span> represents the total dividend payment in <span class="math inline">\([t,t+dt]\)</span> for owning <span class="math inline">\(1\)</span> unit of stock. This dividend process will be given by a geometric Brownian motion with mean <span class="math inline">\(\mu_D\)</span> and volatility <span class="math inline">\(\sigma_D\)</span>. Separately, there is a market multiple process <span class="math inline">\(M_t\)</span> which represents the amount the market is willing to pay for the stock given its current dividend. Simply, if <span class="math inline">\(S_t\)</span> is stock price at time <span class="math inline">\(t\)</span>, then <span class="math inline">\(D_t M_t = S_t\)</span>. To model the market multiple process, we model its inverse, the dividend yield process <span class="math inline">\(y_t = \frac{1}{M_t} = \frac{D_t}{S_t}\)</span> with an OU model, which is common for interest rates as it allows for mean reversion. This gives the model</p>
@@ -671,10 +672,11 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
 <span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Stock Allocation'</span>)<span class="op">;</span></span>
 <span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:<span class="op">-</span><span class="dv">1</span>],pi_plt[index_start:],<span class="st">'m'</span>)<span class="op">;</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].yaxis.set_major_formatter(mtick.PercentFormatter(<span class="fl">1.0</span>))</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <p><img src="KellyOptimalMarketCycles_files/figure-html/cell-8-output-1.png" width="785" height="517"></p>
@@ -722,10 +724,11 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 <span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
 <span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Stock Allocations'</span>)<span class="op">;</span></span>
 <span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:<span class="op">-</span><span class="dv">1</span>],pi_plt[index_start:],<span class="st">'y'</span>,t[index_start:<span class="op">-</span><span class="dv">1</span>],piPE10_plt[index_start:],<span class="st">'c'</span>)<span class="op">;</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].yaxis.set_major_formatter(mtick.PercentFormatter(<span class="fl">1.0</span>))</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <p><img src="KellyOptimalMarketCycles_files/figure-html/cell-9-output-1.png" width="780" height="517"></p>
@@ -774,8 +777,8 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Modified Sharpe  Mean Return  Volatility
-PE timing           0.534494     0.161748    0.302620
-CAPE timing         0.479514     0.149249    0.311251
+PE timing           0.539153     0.159054    0.295008
+CAPE timing         0.489849     0.149465    0.305125
 100% SP500          0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
@@ -906,8 +909,8 @@ CAPE timing         0.479514     0.149249    0.311251
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                        Modified Sharpe  Mean Return  Volatility
-PE 1yr trailing Timing         0.534494     0.151471    0.306737
-CAPE timing                    0.479514     0.149249    0.311251
+PE 1yr trailing Timing         0.539153     0.150571    0.299498
+CAPE timing                    0.489849     0.149465    0.305125
 100% SP500                     0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
@@ -954,14 +957,15 @@ CAPE timing                    0.479514     0.149249    0.311251
 <span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
 <span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
 <span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1990 - 2021: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].yaxis.set_major_formatter(mtick.PercentFormatter(<span class="fl">1.0</span>))</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1990 - 2021: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="791" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-14-output-1.png" width="787" height="548"></p>
 </div>
 </div>
 <ol start="4" type="1">
@@ -998,11 +1002,12 @@ CAPE timing                    0.479514     0.149249    0.311251
 <span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
 <span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
 <span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
-<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
-<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1915 - 1922: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
-<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].yaxis.set_major_formatter(mtick.PercentFormatter(<span class="fl">1.0</span>))</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1915 - 1922: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="785" height="548"></p>
@@ -1041,11 +1046,12 @@ CAPE timing                    0.479514     0.149249    0.311251
 <span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#plt.figure(4);</span></span>
 <span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].set_title(<span class="st">'Kelly Allocation'</span>)<span class="op">;</span></span>
 <span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].plot(t[index_start:index_end],piPE10_plt[index_start:index_end],<span class="st">'c'</span>)<span class="op">;</span></span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1928 - 1934: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    ax[<span class="dv">1</span>,<span class="dv">0</span>].yaxis.set_major_formatter(mtick.PercentFormatter(<span class="fl">1.0</span>))</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    plt.subplots_adjust(hspace<span class="op">=</span><span class="fl">0.7</span>, wspace<span class="op">=</span><span class="fl">0.15</span>)<span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()<span class="op">;</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    fig.suptitle(<span class="st">'1928 - 1934: CAPE timing (cyan), 100% SP500 (blue)'</span>,y<span class="op">=</span><span class="fl">1.03</span>)</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <p><img src="KellyOptimalMarketCycles_files/figure-html/cell-16-output-1.png" width="785" height="548"></p>

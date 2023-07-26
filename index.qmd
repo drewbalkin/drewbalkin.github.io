@@ -35,7 +35,7 @@ These two factors -- changing risk preferences and valuation-agnostic investing 
 
 Assuming this is true, how should one allocate over time given the existence of these market cycles?
 
-I offer a very simple model to offer the start of a framework for this question. I hope to develop this into a more robust model in the future. This work is included in my blog post on [Valuation-based Kelly Optimal Portfolios for Market Cycle Investing](./KellyOptimalMarketCycles.qmd).
+I offer a very simple model to offer the start of a framework for this question. This model offers a teaching viewpoint for techniques that can be used in more sophisticated models. This work is included in my blog post on [Valuation-based Kelly Optimal Portfolios for Market Cycle Investing](./KellyOptimalMarketCycles.qmd).
 
 
 ### Log-Optimal Portfolio and Option Pricing
