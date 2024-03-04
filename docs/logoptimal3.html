@@ -125,13 +125,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#indifference-pricing-for-all-crra-utilities" id="toc-indifference-pricing-for-all-crra-utilities" class="nav-link active" data-scroll-target="#indifference-pricing-for-all-crra-utilities">Indifference Pricing for all CRRA Utilities</a></li>
-  <li><a href="#the-big-result" id="toc-the-big-result" class="nav-link" data-scroll-target="#the-big-result">The Big Result</a></li>
-  <li><a href="#the-computation" id="toc-the-computation" class="nav-link" data-scroll-target="#the-computation">The Computation</a>
-  <ul class="collapse">
-  <li><a href="#computation-of-the-gamma-optimal-portfolio" id="toc-computation-of-the-gamma-optimal-portfolio" class="nav-link" data-scroll-target="#computation-of-the-gamma-optimal-portfolio">Computation of the <span class="math inline">\(\gamma\)</span>-Optimal Portfolio</a></li>
-  <li><a href="#computation-of-the-gamma-investors-utility-indifference-price" id="toc-computation-of-the-gamma-investors-utility-indifference-price" class="nav-link" data-scroll-target="#computation-of-the-gamma-investors-utility-indifference-price">Computation of the <span class="math inline">\(\gamma\)</span>-Investor’s Utility Indifference Price</a></li>
-  </ul></li>
+  <li><a href="#marginal-utility-indifference-pricing" id="toc-marginal-utility-indifference-pricing" class="nav-link active" data-scroll-target="#marginal-utility-indifference-pricing">Marginal Utility Indifference Pricing</a></li>
+  <li><a href="#log-utility-indifference-pricing" id="toc-log-utility-indifference-pricing" class="nav-link" data-scroll-target="#log-utility-indifference-pricing">Log Utility Indifference Pricing</a></li>
   </ul>
 </nav>
     </div>
@@ -162,89 +157,31 @@ ul.task-list li input[type="checkbox"] {
 <p>Although an exciting result, there are two main problems this faces for practical implementation. The first is that it is actually hard to achieve the growth optimal portfolio as one would have to know the local rates of mean return, volatilities (across all differing possible sources of noise), and money market rate – <span class="math inline">\(\mu_t\)</span>, <span class="math inline">\(\sigma_t\)</span>, <span class="math inline">\(r_t\)</span> at each time. Although these values are themselves random, the model we consider (a generalization of Black-Scholes, local volatility, stochastic volatility, and much else) still assumes that at time <span class="math inline">\(t\)</span> we know what those values are at that instant (although we don’t know the resulting shocks due to the noise). Specifying the “ground truth” (random) model is very, very hard in reality!</p>
 <p>We will not address this first problem that corresponds to its limited viability in reality. Instead we will deal with a secondary problem. What we have shown so far is a pricing for attainable claims. For unattainable claims (ones we cannot hedge), we may still find a derivative (long or short) compelling based on the price. Thus although one cannot hedge the option, one can still assign their personal value to the option. If going long/short the option (at the observed price) can increase the expected utility of their portfolio, then the investor will buy/sell the option.</p>
 <p>Using utility theory, it is very easy to understand when the investor gains from buying or selling the option. Suppose <span class="math inline">\(\pi\)</span> is the optimal portfolio (among presently traded securities) for an investor with utility function <span class="math inline">\(U\)</span>. All of a sudden, an option <span class="math inline">\(\chi\)</span> comes on the market. The option will payout <span class="math inline">\(\chi_T\)</span> at time <span class="math inline">\(T\)</span> and can be bought/sold for <span class="math inline">\(\chi_0\)</span>. Without loss of generality, assume <span class="math inline">\(V^\pi_0 = 1\)</span>. The investor will be interested (in a small amount) of the option if the initial price <span class="math inline">\(\chi_0\)</span> is such that their expected utility increases by adding a tiny position (long option) to the portfolio. If the option price is such that their expected utility decreases by adding a small amount of long option, then we can show the investor would be interested in the short option position. Thus, we can find the personal price for a given investor of the option as the price such that they are indifferent to adding a small amount of option to their portfolio.</p>
-<section id="indifference-pricing-for-all-crra-utilities" class="level1">
-<h1>Indifference Pricing for all CRRA Utilities</h1>
-<p>We will now compute the marginal utility indifference price for all CRRA investors. This means that an investor has the utility of the form</p>
-<p><span class="math display">\[U(x) = \gamma x^ \gamma\]</span></p>
-<p>for some <span class="math inline">\(\gamma &lt; 1\)</span>. This is an arbitrary CRRA utility function. While this seems restrictive, this is a general utility function for the class of investor’s who decide on lotteries based purely on return outcomes and not absolute wealth levels.</p>
+<section id="marginal-utility-indifference-pricing" class="level1">
+<h1>Marginal Utility Indifference Pricing</h1>
+<p>We will now derive the idea of a marginal utility indifference price. This will be the price that an investor with a given utility pays for an infinitesimally small amount of a given claim. We identify the utility of the investor (indexed by gamma) as <span class="math inline">\(U_\gamma(x)\)</span>.</p>
 <p>Assume that an investor currently has an optimal portfolio strategy for their utility function. This gives wealth process <span class="math inline">\(V^{\pi_\gamma}_T\)</span>. Without loss of generality, assume <span class="math inline">\(V^{\pi_\gamma}_0 = 1\)</span>.</p>
 <p>Now consider a claim with payout at time <span class="math inline">\(T\)</span>, <span class="math inline">\(\chi_T\)</span>. We denote its value (to investor with utility indexed by <span class="math inline">\(\gamma\)</span>) at time <span class="math inline">\(0\)</span> by <span class="math inline">\(\chi_0(\gamma)\)</span>.</p>
 <p>Assuming the investor now allocates <span class="math inline">\(\epsilon\)</span> of their wealth to <span class="math inline">\(\chi\)</span> and <span class="math inline">\((1-\epsilon)\)</span> to their original (<span class="math inline">\(\gamma\)</span> - utility optimal) strategy, then the investor will be indifferent to adding the option if</p>
 <p><span class="math display">\[\frac{d}{d\epsilon} \Bigg|_{\epsilon = 0} \mathbb{E} \left[ U\left((1-\epsilon)V^{\pi_\gamma}_T + \epsilon \frac{\chi_T}{\chi_0}\right)\right] = 0.\]</span></p>
-<p>What this means is that the investor does not gain any expected utility by adding/ removing <span class="math inline">\(\chi\)</span> to their portfolio. In otherwords, they are indifferent to buying or selling the option. What we notice is that whether the above will hold or not depends on the initial price of the option <span class="math inline">\(\chi_0\)</span>. Thus we call <span class="math inline">\(\chi_0(\gamma)\)</span> to be the marginal utility indifference price of the option for investor with risk preference parameter <span class="math inline">\(\gamma\)</span>. It turns out we can solve for <span class="math inline">\(\chi_0(\gamma)\)</span> by taking the derivative and using the linearity of the expectation. Doing this, we get</p>
+<p>What this means is that the investor does not gain any expected utility by adding/ removing <span class="math inline">\(\chi\)</span> to their portfolio. In otherwords, they are indifferent to buying or selling the option. What we notice is that whether the above will hold or not depends on the initial price of the option <span class="math inline">\(\chi_0\)</span>. Thus we call <span class="math inline">\(\chi_0(\gamma)\)</span> to be the marginal utility indifference price of the option for investor with risk preference parameter <span class="math inline">\(\gamma\)</span>. We can solve for <span class="math inline">\(\chi_0(\gamma)\)</span> by computing the derivative and using the linearity of the expectation. Doing this, we get</p>
 <p><span class="math display">\[\chi_0(\gamma) = \frac{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) \chi_T \right]}{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) V^{\pi_\gamma}_T\right]},\]</span></p>
 <p>where the expectation is under <span class="math inline">\(\mathbb{P}\)</span>. We can write this very suggestively as:</p>
 <p><span class="math display">\[
 \chi_0(\gamma) = \mathbb{E}[ m_T(\gamma) \chi_T ]
 \]</span> by taking <span class="math display">\[m_T(\gamma) =  \frac{U'(V^{\pi_\gamma}_T)}{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) V^{\pi_\gamma}_T \right]}.\]</span></p>
-<p>Thus we have found the natural stochastic discount factor for an investor with a given utility function. This is interesting, but we are just getting started.</p>
-<p>Note we have for investor with CRRA utility and risk preference parameter <span class="math inline">\(\gamma\)</span> that</p>
-<p><span class="math display">\[\chi_0(\gamma) = \frac{\mathbb{E}^\mathbb{P} \left[ U'(V^{\pi_\gamma}_T) \chi_T \right]}{\mathbb{E}^\mathbb{P} \left[ U'(V^{\pi_\gamma}_T) V^{\pi_\gamma}_T\right]}.\]</span></p>
-<p>We know that if the investor has the log utility <span class="math inline">\(\gamma = 0\)</span>, then we will have <span class="math inline">\(U'(V^{\pi^*}_T) = \frac{1}{V^{\pi^*}_T}\)</span> so we get the result that we previously knew:</p>
+<p>Thus we have found the natural stochastic discount factor for an investor with a given utility function.</p>
+</section>
+<section id="log-utility-indifference-pricing" class="level1">
+<h1>Log Utility Indifference Pricing</h1>
+<p>Consider an investor with a log utility function. That is</p>
+<p><span class="math display">\[U_\gamma(x) = \log(x),\]</span> and denote <span class="math inline">\(V^{\pi^*}_T\)</span> to be the portfolio value for the log utility investor.</p>
+<p>Substituting <span class="math inline">\(U'(V^{\pi^*}_T) = \frac{1}{V^{\pi^*}_T}\)</span>, we will get:</p>
 <p><span class="math display">\[
 \chi_0(0) = \mathbb{E}^\mathbb{P} \left[ \frac{\chi_T}{V^{\pi^*}_T} \right].\]</span></p>
-<p>That’s exciting!!! But wait… not really. Not everyone is a log utility investor as they could have different risk preferences. In reality, not everyone is a CRRA investor either, but it is a good approximation for fund managers who are focused on performance in terms of returns.</p>
-</section>
-<section id="the-big-result" class="level1">
-<h1>The Big Result</h1>
-<p>We haven’t yet used the CRRA utility property. What we will show is that for is for all CRRA investors, we have that <span class="math inline">\(\chi_0(\gamma) = \chi_0(0)\)</span>. That is the indifference price is the same for investors. Moreover, this indifference price is given by:</p>
-<p><span class="math display">\[\chi_0(\gamma) = \mathbb{E} \left[\frac{\chi_T}{V^{\pi^*}_T} \right],\]</span></p>
-<p>where <span class="math inline">\(V^{\pi^*}_T\)</span> is the value process at time <span class="math inline">\(T\)</span> for the log-optimal portfolio. This is the same result we had before for attainable claims!!!</p>
-<p>Now, one big caveat is that this is the price for an infinitesimal quantity of the claim. This is because this indifference pricing argument found the initial price such that an investor would be indifferent to adding an infinitely small amount of said claim to their portfolio. We have not done an analysis on the indifference price for adding larger amounts of claims. The desired price the investor demands will differ if they already owned a substantial position in the derivative security.</p>
-<p>I don’t want to take away from this result either. We will show that the same pricing formula from <a href="./logoptimal1.html">part 1</a> and <a href="./logoptimal2.html">part 2</a> holds even for unattainable claims for the wide and realistic class of all CRRA investors, but only for an infinitely small amount of option.</p>
-</section>
-<section id="the-computation" class="level1">
-<h1>The Computation</h1>
-<p>As before, we assume the following model for <span class="math inline">\(I\)</span> risk assets driven by <span class="math inline">\(J\)</span> noises so as to get:</p>
-<p><span class="math display">\[ \frac{dS^i_t}{S^i_t} = \mu^i_t dt + \sum_{j=J}^m \sigma^{ij}_t dW^j_t\]</span></p>
-<p>with portfolio processes then given by</p>
-<p><span class="math display">\[\frac{dV^\pi_t}{V^\pi_t} = \sum_{i=1}^I \pi^i_t \frac{dS^i_t}{S^i_t}.\]</span> Notice how we are temporarily ignoring the money-market allocation and rate <span class="math inline">\(r_t\)</span>. Actually, we can assume that we are (temporarily) in units of the cash-account numeraire i.e.&nbsp;everything is priced in units of <span class="math inline">\(B_t\)</span>. This can be easily worked out. The main thing is that the asset local mean returns are understood now as <span class="math inline">\(\mu^i_t - r_t\)</span> (since they are discounted by the bank account). Also, <span class="math inline">\((\pi^i_t)\)</span> need not add up to <span class="math inline">\(1\)</span> as the remaining amount is taken to be borrowings. If it makes one feel better, one can adjust the model to be the same one from <a href="./logoptimal2.html">part 2</a> and carry out the future computations in terms of the model in terms of units of currency and not units of <span class="math inline">\(B_t\)</span>.</p>
-<section id="computation-of-the-gamma-optimal-portfolio" class="level2">
-<h2 class="anchored" data-anchor-id="computation-of-the-gamma-optimal-portfolio">Computation of the <span class="math inline">\(\gamma\)</span>-Optimal Portfolio</h2>
-<p>Anyway, with this out of the way, we proceed by computing the optimal portfolios for investors with <span class="math inline">\(\gamma\)</span> risk preference parameter. Actually, we will show that like the log-utility maximization example from <a href="./logoptimal1.html">part 1</a>, the case of power utility can also be optimized in a very similar fashion in a way that avoids the usual approach of guessing solutions for the HJB equation!</p>
-<p>We compute:</p>
-<p><span class="math display">\[d \log((V^{\pi_\gamma}_t)^\gamma) = \gamma d \log(V^{\pi_\gamma}_t) =  \gamma\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} - \frac{1}{2} \gamma \left(\frac{dV^{\pi_\gamma}_t}{V^{\pi_\gamma}_t} \right)^2.\]</span></p>
-<p>This gives</p>
-<p><span class="math display">\[ (V^{\pi_\gamma}_T)^\gamma = \exp \left[ \int_0^T \gamma \left(  \pi_t^T \mu_t -   \frac{1}{2} \pi_t^T \sigma_t \sigma_t^T \pi_t \right) dt + \int_0^T \gamma \pi_t^T \sigma_t d\vec{W}_t \right] .\]</span></p>
-<p>as we are assuming all portfolio values are initial <span class="math inline">\(1\)</span>. Multiplying by <span class="math inline">\(\gamma\)</span> and taking expectation, we get:</p>
-<p><span class="math display">\[\mathbb{E}[U(V^{\pi_\gamma}_T)] = \mathbb{E}[\gamma (V^{\pi_\gamma}_T)^\gamma] = \gamma \mathbb{E} \left[ \exp \left( \int_0^T  \left(  \gamma \pi_t^T \mu_t -   (\frac{1}{2}\gamma - \frac{1}{2}\gamma^2)  \pi_t^T \sigma_t \sigma_t^T \pi_t \right) dt \right) \right].\]</span></p>
-<p>Since <span class="math inline">\((\sigma_t\sigma_t^T)\)</span> is invertible (this holds for arbitrage free models), we can optimize the integrand pointwise and the optimal portfolio occurs at</p>
-<p><span class="math display">\[ \pi^{\gamma,*}_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t.\]</span></p>
-<p>To see why optimizing the integrand pointwise holds, define:</p>
-<p><span class="math display">\[f(\pi_t(\omega) , \omega, t) =  \gamma \pi_t(\omega)^T \mu_t(\omega) -   (\frac{1}{2}\gamma - \frac{1}{2}\gamma^2)  \pi_t(\omega)^T \sigma_t(\omega) \sigma_t^T(\omega) \pi_t(\omega).\]</span></p>
-<p>Note that <span class="math inline">\(\gamma &lt; 1\)</span> and <span class="math inline">\(\sigma \sigma^T\)</span> is uniformly strictly positive definite by assumption, so by quadratic optimization, we have that <span class="math inline">\(\pi^*_t(\omega) = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t\)</span> is such that:</p>
-<p><span class="math display">\[f(\pi_t(\omega),\omega,t) \leq f(\pi^*_t(\omega),\omega,t), \quad \forall (t, \omega).\]</span> Hence</p>
-<p><span class="math display">\[\mathbb{E} \left[ e^{\int_0^T f (\pi_t(\omega),\omega,t) dt} \right] \leq \mathbb{E} \left[ e^{\int_0^T f(\pi^*_t(\omega),\omega,t) dt} \right].\]</span></p>
-<p>Now that we know that the investor with risk preference parameter <span class="math inline">\(\gamma\)</span> has their optimal portfolio given by</p>
-<p><span class="math display">\[ \pi^{\gamma,*}_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t.\]</span></p>
-<p>Now, we call the corresponding wealth process <span class="math inline">\(V^{\pi_\gamma}\)</span> and compute the indifference price for this investor:</p>
-<p><span class="math display">\[\chi_0(\gamma) = \frac{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) \chi_T \right]}{\mathbb{E} \left[ U'(V^{\pi_\gamma}_T) V^{\pi_\gamma}_T\right]}\]</span></p>
-<p>and show it is the same for each <span class="math inline">\(\gamma\)</span>.</p>
-</section>
-<section id="computation-of-the-gamma-investors-utility-indifference-price" class="level2">
-<h2 class="anchored" data-anchor-id="computation-of-the-gamma-investors-utility-indifference-price">Computation of the <span class="math inline">\(\gamma\)</span>-Investor’s Utility Indifference Price</h2>
-<p>First, notice the CRRA utility satisfies <span class="math inline">\(U'(V^{\pi_\gamma}_T) = \gamma \frac{U(V^{\pi_\gamma}_T)}{V^{\pi_\gamma}_T}\)</span>. This allows us to write:</p>
-<p><span class="math display">\[\chi_0 = \frac{\mathbb{E} \left[ U(V^{\pi_\gamma}_T) \frac{\chi_T}{V^{\pi_\gamma}_T} \right]}{\mathbb{E} [ U(V^{\pi_\gamma}_T)]} = \mathbb{E} \left[ \frac{U(V^{\pi_\gamma}_T)}{\mathbb{E} [ U(V^{\pi_\gamma}_T)]} \frac{\chi_T}{V^{\pi_\gamma}_T} \right].\]</span></p>
-<p>Next,</p>
-<p><span class="math display">\[ V^{\pi_\gamma}_T = \exp \left[ \int_0^T\left(  \pi_t^T \mu_t -   \frac{1}{2} \pi_t^T \sigma_t \sigma_t^T \pi_t \right) dt + \int_0^T  \pi_t^T \sigma_t d\vec{W}_t \right] \]</span></p>
-<p>where <span class="math inline">\(\pi_t = \pi^{\gamma,*}_t = \frac{1}{1-\gamma}(\sigma_t \sigma_t^T)^{-1} \mu_t\)</span>. So we have</p>
-<p><span class="math display">\[ V^{\pi_\gamma}_T = \exp \left[ \int_0^T \frac{\frac{1}{2} - \gamma}{(1-\gamma)^2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \frac{1}{1-\gamma} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right] .\]</span></p>
-<p>Next</p>
-<p><span class="math display">\[ (V^{\pi_\gamma}_T)^\gamma = \exp \left[ \int_0^T \gamma \frac{\frac{1}{2} - \gamma}{(1-\gamma)^2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \frac{\gamma}{1-\gamma} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right] .\]</span></p>
-<p>Therefore, using <span class="math display">\[U(V^{\pi_\gamma}_T) = \gamma (V^{\pi_\gamma}_T)^\gamma \]</span> and simplifying the coefficients, we have</p>
-<p><span class="math display">\[\frac{U(V^{\pi_\gamma}_T)}{\mathbb{E} [ U(V^{\pi_\gamma}_T)]} = \exp \left[ \int_0^T -\frac{1}{2}\left(\frac{\gamma}{1-\gamma} \right)^2 \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \frac{\gamma}{1-\gamma} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right],\]</span></p>
-<p>and thus</p>
-<p><span class="math display">\[ \frac{U(V^{\pi_\gamma}_T)}{\mathbb{E} [ U(V^{\pi_\gamma}_T)]} \frac{1}{V^{\pi_\gamma}_T}   =   \exp \left[ \int_0^T \frac{-1}{2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt - \int_0^T \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right].\]</span></p>
-<p>Hence the indifference price is then:</p>
-<p><span class="math display">\[\chi_0 = \mathbb{E} \left[ \frac{U(V^{\pi_\gamma}_T)}{\mathbb{E} [ U(V^{\pi_\gamma}_T)]} \frac{\chi_T}{V^{\pi_\gamma}_T} \right] = \mathbb{E} \left[ \frac{\chi_T}{\exp \left[ \int_0^T \frac{1}{2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right]}  \right].\]</span></p>
-<p>Lastly note that the log-optimal portfolio corresponds to</p>
-<p><span class="math display">\[\pi^*_t = (\sigma_t \sigma_t^T)^{-1} \mu_t\]</span> and its corresponding portfolio process is <span class="math inline">\(V^{\pi^*}_T = \exp \left[ \int_0^T \frac{1}{2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t \right]\)</span> as we are assuming all initial portfolio values are <span class="math inline">\(1\)</span>.</p>
-<p>Thus each CRRA investor has the indifference price:</p>
-<p><span class="math display">\[\chi_0 = \mathbb{E} \left[ \frac{\chi_T}{\exp \left[ \int_0^T \frac{1}{2} \mu_t^T (\sigma_t \sigma_t^T)^{-1} \mu_t dt + \int_0^T \mu_t^T (\sigma_t \sigma_t^T)^{-1} \sigma_t d\vec{W}_t  \right]}  \right] = \mathbb{E} \left[ \frac{\chi_T}{V^{\pi^*}_T} \right],\]</span></p>
-<p><em>even</em> in the case of non-attainable claims.</p>
+<p>In other words, log-utility based investors will price the claim exactly as we have derived before <em>even</em> in the case of non-attainable claims.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->

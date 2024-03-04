@@ -452,7 +452,7 @@ dX_t &amp; = \pi_{NN}(t,y_t) X_t \bigg(y_t dt +  \frac{dD_t}{D_t} + \frac{d(1/y_
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="785" height="516"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-4-output-1.png" width="786" height="516"></p>
 </div>
 </div>
 <p>The above generated data serves to show possible dynamics of our assumed model as well as how the Kelly optimal allocation behaves with respect to these possible dynamics.</p>
@@ -777,8 +777,8 @@ dX_t &amp; = \pi_t X_t\bigg(y_t dt + \frac{dD_t}{D_t} + \frac{d(1/y_t)}{1/y_t} \
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>             Modified Sharpe  Mean Return  Volatility
-PE timing           0.539153     0.159054    0.295008
-CAPE timing         0.489849     0.149465    0.305125
+PE timing           0.528545     0.157119    0.297267
+CAPE timing         0.474236     0.145645    0.307115
 100% SP500          0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
@@ -901,7 +901,7 @@ CAPE timing         0.489849     0.149465    0.305125
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#table output</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {<span class="st">'PE 1yr trailing Timing'</span>: (sharpe_PE_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE1_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE1_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'100% SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))}</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>sharpe_ratio_table <span class="op">=</span> {<span class="st">'PE 1yr trailing Timing'</span>: (sharpe_PE1_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE1_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE1_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'CAPE timing'</span>: (sharpe_PE10_timing<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_PE10_timing)<span class="op">*</span><span class="dv">12</span>, np.std(returns_PE10_timing)<span class="op">*</span>np.sqrt(<span class="dv">12</span>)), <span class="st">'100% SP500'</span>: (sharpe_SP500<span class="op">*</span>np.sqrt(<span class="dv">12</span>), np.mean(returns_SP500)<span class="op">*</span><span class="dv">12</span>, np.std(returns_SP500)<span class="op">*</span>np.sqrt(<span class="dv">12</span>))}</span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>sharpe_table <span class="op">=</span> pd.DataFrame(sharpe_ratio_table.values(), index<span class="op">=</span>sharpe_ratio_table.keys(), columns<span class="op">=</span>[<span class="st">'Modified Sharpe'</span>, <span class="st">'Mean Return'</span>, <span class="st">'Volatility'</span>])</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
@@ -909,8 +909,8 @@ CAPE timing         0.489849     0.149465    0.305125
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>                        Modified Sharpe  Mean Return  Volatility
-PE 1yr trailing Timing         0.539153     0.150571    0.299498
-CAPE timing                    0.489849     0.149465    0.305125
+PE 1yr trailing Timing         0.488017     0.147088    0.301399
+CAPE timing                    0.474236     0.145645    0.307115
 100% SP500                     0.547833     0.077775    0.141969</code></pre>
 </div>
 </div>
@@ -1010,7 +1010,7 @@ CAPE timing                    0.489849     0.149465    0.305125
 <span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
-<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="785" height="548"></p>
+<p><img src="KellyOptimalMarketCycles_files/figure-html/cell-15-output-1.png" width="786" height="548"></p>
 </div>
 </div>
 <ol start="4" type="1">
