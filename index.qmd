@@ -24,23 +24,17 @@ In this blog, I want to highlight some of my thoughts in a more accessible and i
 
 From a rational standpoint, the value of an equity is the cumulative expected value of its discounted payouts (i.e dividends), where the discounting of dividends is not only done with respect to time, but also for its perceived risk. From this point of view, the movement of the market can be decomposed into two key noises:
 
-1. Change in the (estimated) probability distribution of future dividends. 
-2. Change in the discount factor for future dividends due to both changing interest rates as well as **changing risk-preferences**.
+1.  Change in the (estimated) probability distribution of future dividends.
+2.  Change in the discount factor for future dividends due to both changing interest rates as well as **changing risk-preferences**.
 
-Therefore, from this rational point of view, market movement is not solely based on pricing in new economic developments, but also due to risk-preferences that vary throughout time. While even this rational view leads to changes in valuation due to changing risk preferences, this does not encapsulate the full reality of the stock market.
+Therefore, from this rational point of view, market movement is not solely based on pricing in new economic developments, but also due to risk-preferences that vary throughout time. For instance, a change in aggregate investor risk-preferences will result in a valuation-agnostic price movement. Market cycles in valuations, i.e. periods where stocks seem unusually cheap or expensive relative to future earnings, can occur due to the stochastic and mean-reverting nature of risk-preferences.
 
-In reality, the flows into and out of the market are often non-fundamentally driven, i.e. without regard for valuation. While we can assume a large portion of wealth is allocated based on decisions that are more "behavioral" than rational, today's current market environment is full of non-fundamental flows beyond the "behavioral investor". Mandated allocation rules (pension funds), forced liquidations / untimely withdrawals (hedge funds), and systematic passive investing (retirement accounts) all contribute to flows that are completely valuation agnostic.
-
-These two factors -- changing risk preferences and valuation-agnostic investing --  may lead to market cycles in valuation. 
-
-Assuming this is true, how should one allocate over time given the existence of these market cycles?
+The question then becomes how should one (with constant risk-preferences) allocate over time given the existence of these market cycles?
 
 I offer a very simple model to offer the start of a framework for this question. This model offers a teaching viewpoint for techniques that can be used in more sophisticated models. This work is included in my blog post on [Valuation-based Kelly Optimal Portfolios for Market Cycle Investing](./KellyOptimalMarketCycles.qmd).
-
 
 ### Log-Optimal Portfolio and Option Pricing
 
 Traditionally, financial derivatives are priced as their discounted payout under a risk neutral measure. I was intrigued by an approach that I rediscovered that shows the price of the derivative is actually its payout under the physical measure when a certain unit of account (or numeraire) is considered. Specifically, if one takes as unit of account the so-called "log-optimal portfolio", then the option's price is exactly the expected value of the option's payout under the true physical measure! In other words, pricing a derivative/security/asset in units of log-optimal portfolio naturally discounts for risk and time! Not only is this true, but it can even be extended to more general frameworks.
 
-While the results are known, I want to present this knowledge in a non-technical fashion for someone with a background in mathematical finance in the same way I rediscovered these results. Here are my lecture notes on this topic starting from [the basic case of a traditional Black-Scholes model](./logoptimal1.qmd) and then to [the case for a generalized market model ](./logoptimal2.qmd). In fact, we show this framework is even true for a [utility based pricing in the case of unattainable claims](./logoptimal3.qmd)! 
-
+While the results are known, I want to present this knowledge in a non-technical fashion for someone with a background in mathematical finance in the same way I rediscovered these results. Here are my lecture notes on this topic starting from [the basic case of a traditional Black-Scholes model](./logoptimal1.qmd) and then to [the case for a generalized market model](./logoptimal2.qmd). In fact, we show this framework is even true for a [utility based pricing in the case of unattainable claims](./logoptimal3.qmd)!
